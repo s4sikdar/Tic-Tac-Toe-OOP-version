@@ -1,8 +1,6 @@
 # These are saved as .txt files most likely. Copy the text onto your python IDE
 # (preferrably use Atom) and save this as "Artificial_Intelligence.py"
 import Checker_fns
-from Checker_fns import *
-from Checker_fns import Checker
 import sys
 
 # This class is for our AI that comes up with the right moves using the minimax
@@ -191,34 +189,24 @@ class The_AI_program:
      We have a coordinate and we check if we have 2 unblocked rows of 2 from this coordinate.
     '''
     def Fork(self,coordinate,player_pieces,number):
-        #print('Before mutation:')
-        #print(coordinate)
-        #print('After mutation')
-        #for i in (range(len(array))):
-        #    print(array[i])
-        #New_coordinate = []
         List_1 = self.Our_function(number,coordinate,player_pieces,True,True,True)
-        #print('List_1:',List_1)
         List_2 = []
         if ((len(List_1)) != 0):
             if List_1 in [[[0,0],[1,1],[2,2]],[[0,2],[1,1],[2,0]]]:
                 for i in (range(len(List_1))):
                     List_2 = self.Our_function(number,List_1[i],player_pieces,True,True,False)
-                    #print('List_2:',List_2)
                     if ((len(List_2)) != 0):
                         return True
                 return False
             elif ((List_1[0][0] == List_1[1][0]) and (List_1[1][0] == List_1[2][0])):
                 for i in (range(len(List_1))):
                     List_2 = self.Our_function(number,List_1[i],player_pieces,False,True,True)
-                    #print('List_2:',List_2)
                     if ((len(List_2)) != 0):
                         return True
                 return False
             else:
                 for i in (range(len(List_1))):
                     List_2 = self.Our_function(number,List_1[i],player_pieces,True,False,True)
-                    #print('List_2:',List_2)
                     if ((len(List_2)) != 0):
                         return True
                 return False
@@ -249,8 +237,6 @@ class The_AI_program:
             player_pieces[coordinate[0]][coordinate[1]] = number
             Fork_Opposite = self.Fork(coordinate,player_pieces,number)
             player_pieces[coordinate[0]][coordinate[1]] = other_number
-        #for i in (range(len(array))):
-        #        print(array[i])
         return Fork_Opposite
 
     # This is the static evaluation function that puts everything together.
@@ -259,13 +245,9 @@ class The_AI_program:
     # We return the result accordingly
     def Static_Evaluation(self,coordinate,player_pieces,number,other_number,Checker_object):
         Three = self.Three_row(number,player_pieces,coordinate,Checker_object)
-        #print('Three in a row:',Three, 'for',coordinate)
         A_Block = self.Block(coordinate,player_pieces,number,other_number)
-        #print('Block:',A_Block,'for',coordinate)
         Forks = self.Fork(coordinate,player_pieces,number)
-        #print('Fork for us:',Forks,'for',coordinate)
         Opposite = self.Fork_for_them(coordinate,player_pieces,other_number,number)
-        #print('Fork for them:',Opposite,'for',coordinate)
 
         if Three:
             return [coordinate,8]
@@ -292,19 +274,12 @@ class The_AI_program:
         Diagonal = Checker_object.Diagonals(Game_board)
 
         if ((not (Horizontal is None)) and (not(Horizontal == 0))):
-            #print_board()
-            #print('Player', Horizontal, 'wins!')
             return [False, Horizontal]
         elif ((not (Vertical is None)) and (not(Horizontal == 0))):
-            #print_board()
-            #print('Player', Vertical, 'wins!')
             return [False,Vertical]
         elif ((not (Diagonal is None)) and (not (Diagonal == 0))):
-            #print_board()
-            #print('Player', Diagonal, 'wins!')
             return [False,Diagonal]
         else:
-            #print('Nothing in a row. Noone wins yet.')
             return [True,0]
 
     # This is my implementation of the minimax algorithm. Type 'minimax algorithm'
@@ -329,13 +304,10 @@ class The_AI_program:
     # goes first
     def minimax(self,depth,player_pieces,maximizing_player,number,\
                 Checker_object,other_number,coordinate,available_spots):
-        #print('Layer of recursion:',depth)
         max_eval = - sys.maxsize
         min_eval = sys.maxsize
         Max_evaluation = [0,0]
         Min_Evaluation = [0,0]
-        #Max_coordinate = []
-        #Min_coordinate = []
         Win = self.No_wins(player_pieces,Checker_object)
         Filled_up = Checker_object.All_Filled_Up(available_spots)
         Evaluation = []
@@ -348,7 +320,6 @@ class The_AI_program:
                                                     number,\
                                                     Checker_object)
                 Evaluation[1] *= (depth + 1)
-                #print('Static evaluation at',coordinate,'is',Evaluation[1])
                 return Evaluation
             else:
                 Evaluation = self.Static_Evaluation(coordinate,\
@@ -357,7 +328,6 @@ class The_AI_program:
                                                     number,\
                                                     Checker_object)
                 Evaluation[1] *= (-1 * (depth + 1))
-                #print('Static evaluation at',coordinate,'is',Evaluation[1])
                 return Evaluation
 
         # We check to see if the spot's empty and we put the number in, and get its evaluation
@@ -366,10 +336,6 @@ class The_AI_program:
                 for j in (range(len(player_pieces[i]))):
                     if (player_pieces[i][j] == 0):
                         player_pieces[i][j] = number
-                        #for x in (range(len(array))):
-                        #        print(array[x])
-                        #print('\n')
-                        #print('Coordinates max:',[i,j])
                         available_spots[i][j] = False
                         Evaluation = self.minimax(depth - 1,\
                                                   player_pieces,\
@@ -379,19 +345,11 @@ class The_AI_program:
                                                   number,\
                                                   [i,j],\
                                                   available_spots)
-                        #print('Choice with ' + (str(depth)) + ' layer of recursion at ' + (str([i,j]))+':', Evaluation)
-                        #print(Evaluation)
                         if (Evaluation[1] > max_eval):
                             Max_evaluation = [[i,j],Evaluation[1]]
-                        #    print('Max Evaluation:',Max_evaluation)
                         max_eval = max(max_eval,Evaluation[1])
                         player_pieces[i][j] = 0
                         available_spots[i][j] = True
-                        #for i in (range(len(array))):
-                        #    print(array[i])
-                            #print('\n')'''
-            #print('Max choice with ' + (str(depth)) + ' layer of recursion:', Max_evaluation)
-            #print('Maximizing Player')
             return Max_evaluation
 
         #Else if it's not the maximizing player's turn, we see if it's empty and put in the other number
@@ -401,10 +359,6 @@ class The_AI_program:
                     if (player_pieces[i][j] == 0):
                         player_pieces[i][j] = number
                         available_spots[i][j] = False
-                        #for x in (range(len(array))):
-                        #    print(array[x])
-                        #print('\n')
-                        #print('Coordinates min:',[i,j])
                         Evaluation = self.minimax(depth - 1,\
                                                   player_pieces,\
                                                   True,\
@@ -413,17 +367,9 @@ class The_AI_program:
                                                   number,\
                                                   [i,j],\
                                                   available_spots)
-                        #print('Choice with ' + (str(depth)) + ' layer of recursion at ' + (str([i,j]))+':', Evaluation)
-                        #print(Evaluation)
                         if (Evaluation[1] < min_eval):
                             Min_evaluation = [[i,j],Evaluation[1]]
-                        #    print('Min Evaluation:', Min_evaluation)
                         min_eval = min(min_eval,Evaluation[1])
                         player_pieces[i][j] = 0
                         available_spots[i][j] = True
-                        #for i in (range(len(array))):
-                        #    print(array[i])
-                        #print('\n')
-            #print('Min choice with ' + (str(depth)) + ' layer of recursion:', Min_evaluation)
-            #print('Minimizing player')
             return Min_evaluation

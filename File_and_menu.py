@@ -2,9 +2,10 @@
 # (preferrably use Atom) and save this as "File_and_menu.py"
 import os
 import Game_module
-import Variables
-from Variables import *
-from Game_module import *
+import Artificial_Intelligence
+import Checker_fns
+import Print_fns
+from Variables import Output_array
 
 # This class is for our database and file systems to keep track of individual profiles
 # and their scores
@@ -39,7 +40,6 @@ class File_and_database_object:
         else:
             return ordered_list[(len(ordered_list)) // 2]
 
-    #median([2,3,4,3.5,4,5,7])
 
     # This basically ranks the database, according to the ranking system we use.
     # We do the grunt work in the database list we create each time, so we just
@@ -55,30 +55,16 @@ class File_and_database_object:
         List_of_scores_copy = List_of_scores.copy()
         while ((len(List_of_scores_copy)) > 0):
             Max = max(List_of_scores_copy)
-            #print('Iteration:', (a+1), 'Max:',Max)
-            #print('List of scores copy before remove:', List_of_scores_copy)
             New_List.append(Database_list[List_of_scores_copy.index(Max)])
             Database_list.pop(List_of_scores_copy.index(Max))
-            #print('List:',List)
-            #print('New List:', New_List)
             List_of_scores_copy.remove(Max)
-            #print('List of scores copy:', List_of_scores_copy)
             a += 1
         for i in (range(len(New_List) - 1)):
             if (New_List[i][4] == New_List[i + 1][4]):
-                #print('Index:',i)
-                #print(('New_List[%d][0]:' % i), New_List[i][0])
-                #print(('New_List[%d][0]:' % (i + 1)), New_List[i + 1][0])
                 if ((New_List[i][0].casefold()) > (New_List[i + 1][0].casefold())):
                     Place_holder = New_List[i + 1]
-                    #print('New List[i + 1]',Place_holder)
-                    #print('New List[i]',New_List[i])
-                    #print('Placeholder:',Place_holder)
                     New_List[i + 1] = New_List[i]
                     New_List[i] = Place_holder
-                    #print(('New_List[%d][0]:' % i), New_List[i][0])
-                    #print(('New_List[%d][0]:' % (i + 1)), New_List[i + 1][0])
-        #print(New_List)
         return New_List
 
     # This is what we use to remove all the elements of the list that have only
@@ -109,14 +95,9 @@ class File_and_database_object:
     def Rank_Database(self):
         Players_not_played_yet = self.Remove_all_zeros()
         List_of_profiles = []
-        #print('Player not played yet:',Players_not_played_yet)
-        #print('Database inside Rank Database:',Database)
         self.Database = self.New_Rank(self.Database)
-        #print('Database past new rank:',Database)
         Players_not_played_yet = self.New_Rank(Players_not_played_yet)
-        #print('Database past players not played yet:',Database)
         for i in (range(len(Players_not_played_yet))):
-            #print(('Iteration %d:' % (i+1)),Players_not_played_yet[i])
             self.Database.append(Players_not_played_yet[i])
         List_of_profiles = self.Database
         return List_of_profiles
@@ -189,22 +170,12 @@ class File_and_database_object:
     # This checks to make sure that a leaderboards file exists, which if it doesn't
     # then we create the text file
     def Leaderboards_check(self):
-        #print('before')
         if (not os.path.exists('Leaderboards.txt')):
-            #print('file does not exist. Creating file.')
             Leaderboards = open('Leaderboards.txt','w')
-            #x = Leaderboards.mode
             Leaderboards.write('                             Leaderboards                             \n')
             Leaderboards.write('Username             Wins          Losses          Ties          Score\n')
             Leaderboards.write('----------------------------------------------------------------------\n')
             Leaderboards.close()
-            #Leaderboards = open('Leaderboards.txt','r')
-            #Contents = Leaderboards.read()
-            #print(Contents)
-            #Contents = Leaderboards.readline()
-            #print(Contents)
-            #Leaderboards.close()
-        #print('after')
 
     # Basically we read in strings from our text file and display our leaderboards
     def Print_Leaderboards(self):
@@ -219,8 +190,6 @@ class File_and_database_object:
         empty = ''
         for i in range(x):
             empty += ' '
-        #empty += 'a'
-        #print(empty)
         return empty
 
     # This is what we use to create a new string that we add to the text file,
@@ -279,22 +248,14 @@ class File_and_database_object:
     # Basically we add a new username to the leaderboards
     def Add_a_username(self):
         Username = self.New_username()
-        #Spaces = Add_spaces(spaces)
         self.Leaderboards_check()
-        #print('Leaderboards before:')
-        #Print_Leaderboards()
         print('Leaderboards before username added:')
         self.Print_Leaderboards()
         New_Line = self.Create_string(Username,0,0,0,0)
-        #print(Database)
         self.Database.append([Username,0,0,0,0])
-        #print(Database)
-        #print(New_Line)
         with open('Leaderboards.txt','a') as Leaderboards:
             Leaderboards.write(New_Line)
         print('Leaderboards after username added:')
-        #with open('Leaderboards.txt','r') as Leaderboards:
-        #    print(Leaderboards.readlines())
         self.Print_Leaderboards()
 
     # get_name, get_wins, get_losses, get_ties and get_scores are all helper functions
@@ -380,10 +341,8 @@ class File_and_database_object:
             Leaderboards.write('                             Leaderboards                             \n')
             Leaderboards.write('Username             Wins          Losses          Ties          Score\n')
             Leaderboards.write('----------------------------------------------------------------------\n')
-            #print('Wrote 1st 3 lines')
             for Entry in self.Database:
                 Leaderboards.write(self.Create_string(Entry[0],Entry[1],Entry[2],Entry[3],Entry[4]))
-                #print('Wrote:',Entry)
 
     ''' So we have our text file with strings. We must get these profiles for our sign in process, and
     basically everything else we do with the Leaderboards. We seek the end of the third line which is where
@@ -397,12 +356,10 @@ class File_and_database_object:
         with open('Leaderboards.txt','r') as Leaderboards:
             Leaderboards.seek(l)
             Line = Leaderboards.readline()
-            #print(Line)
             while ((len(Line)) > 0):
                 self.Database.append(self.get_profile(Line))
                 l += (len(Line))
                 Line = Leaderboards.readline()
-        #print('In get profiles:',Database)
 
     # We check to see if the name is there in thd database, as a helper function
     # for when they enter a new name
@@ -417,7 +374,6 @@ class File_and_database_object:
         self.Database = self.Rank_Database()
         self.Leaderboards_check()
         self.Write_to_file()
-        #Print_Leaderboards()
         New_Name = self.New_username()
         Name_in_database = self.Name_is_there(New_Name)
         while ((len(Name_in_database)) != 0):
@@ -427,9 +383,7 @@ class File_and_database_object:
         self.Database.append([New_Name,0,0,0,0])
         self.Database = self.Rank_Database()
         self.Write_to_file()
-        #Print_Leaderboards()
 
-    #Enter_new_name()
 
     # This is our function to sign with a new username
     def Sign_in(self):
@@ -462,7 +416,6 @@ class File_and_database_object:
                                 self.Players_signed_in[1] = None
                             return self.Players_signed_in
                         elif (Nones == 1):
-                            #print('Placceholder statement')
                             if (self.Players_signed_in[0] == None):
                                 i = 1
                             else:
@@ -563,11 +516,7 @@ class File_and_database_object:
             Name = input('This username does not exist. Enter another one:')
             Is_there = self.Name_is_there(Name)
         for i in (range(len(self.Database))):
-            #print(i)
-            #print(Database[i][0])
-            #print(Name)
             if ((self.Database[i][0].casefold()) == (Name.casefold())):
-                #print('Gets in for', Database[i][0])
                 self.Database.pop(i)
                 self.Database = self.Rank_Database()
                 self.Write_to_file()
@@ -791,15 +740,13 @@ to clear all names, \'clear name\' to clear a name, \'b\' to go back to main men
     # or go to the leaderboards option explained above.
     def Main_Menu(self,File_and_database,Variable_object,Game,Multiplayer_game,\
                   Full_game,AI_object,Checker_object,Input_object,Print_object):
+
         if ((len(File_and_database.Database)) == 0):
             File_and_database.Get_Profiles()
+
         File_and_database.Database = File_and_database.Rank_Database()
         File_and_database.Write_to_file()
         File_and_database.Print_Leaderboards()
-        #print(Database)
-        #print(Players_signed_in)
-        #Database = Rank_Database()
-        #Write_to_file()
         String_input = input('Welcome to Tic Tac Toe. Press \'l\' for leaderboards, \'q\' to quit, \'s\' to sign in or enter a new\
  username,\n\'g\' to play the game and \'o\' to sign out.\n')
         while (not ((String_input.casefold()) in ['l','q','s','g','o'])):
@@ -810,7 +757,6 @@ to clear all names, \'clear name\' to clear a name, \'b\' to go back to main men
                               Full_game,AI_object,Checker_object,Input_object,Print_object)
         elif ((String_input.casefold()) == 's'):
             File_and_database.Players_signed_in = File_and_database.Sign_in()
-            #print(Players_signed_in)
             self.Main_Menu(File_and_database,Variable_object,Game,Multiplayer_game,\
                            Full_game,AI_object,Checker_object,Input_object,Print_object)
         elif ((String_input.casefold()) == 'o'):
@@ -825,20 +771,18 @@ to clear all names, \'clear name\' to clear a name, \'b\' to go back to main men
                            Full_game,AI_object,Checker_object,Input_object,Print_object)
         else:
             File_and_database.Database = File_and_database.Rank_Database()
-            #print(Database)
             File_and_database.Write_to_file()
             File_and_database.Clear()
-            #print(Database)
             return None
 
 File_obj = File_and_database_object()
 Variable = Output_array()
-Game = Run_games()
-Multi = Multiplayer()
-AI = The_AI_program()
-Checkers = Checker()
-Inputs = Input_fns()
-Print_obj = Print_Functions()
+Game = Game_module.Run_games()
+Multi = Game_module.Multiplayer()
+AI = Artificial_Intelligence.The_AI_program()
+Checkers = Checker_fns.Checker()
+Inputs = Print_fns.Input_fns()
+Print_obj = Print_fns.Print_Functions()
 Main = Main_Menu_class()
 Main_game = Game_object()
 Main.Main_Menu(File_obj,Variable,Game,Multi,Main_game,AI,Checkers,Inputs,Print_obj)

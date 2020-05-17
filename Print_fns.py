@@ -1,7 +1,6 @@
 # These are saved as .txt files most likely. Copy the text onto your python IDE
 # (preferrably use Atom) and save this as "Print_fns.py"
 import Variables
-from Variables import *
 
 # This class is for the functions that affect the visual output.
 class Print_Functions:
@@ -52,13 +51,12 @@ class Print_Functions:
         Variable_object.Array_of_available_spots\
         [Variable_object.Letter_legend[coordinates[0].upper()] - 1]\
         [(int(coordinates[1])) - 1] = False
-        #print(Array_of_available_spots[Letter_legend[coordinates[0].upper()] - 1][(int(coordinates[1])) - 1])
+
         if Variable_object.player_1:
             Variable_object.Array_of_player_pieces\
             [Variable_object.Letter_legend[coordinates[0].upper()] - 1]\
             [(int(coordinates[1])) - 1] = 1
             self.Add_X(coordinates,Variable_object)
-            #print_board()
         else:
             Variable_object.Array_of_player_pieces\
             [Variable_object.Letter_legend[coordinates[0].upper()] - 1]\
@@ -75,16 +73,8 @@ class Print_Functions:
                 Variable_object.Board[Y_val][X_val + 1] = ' '
                 Variable_object.Board[Y_val + 1][X_val] = ' '
                 Variable_object.Board[Y_val + 1][X_val + 1] = ' '
-'''
-Print_object = Print_fns()
-Variable = Output_array()
-Print_object.print_board(Variable)
-Variable.player_1 = True
-Print_object.Mutate_Board(Variable,'A1')
-Print_object.print_board(Variable)
-Print_object.Clear_the_board(Variable)
-Print_object.print_board(Variable)
-''' #This was all just test code. Nothing to see here
+
+
 
 # This class is for functions that read in data from the user.
 class Input_fns:
@@ -132,7 +122,6 @@ class Input_fns:
             coordinates = list(self.Enter_Coordinates(whos_turn,Variable_object,multi_player))
             First_Index = Variable_object.Letter_legend[coordinates[0].upper()]
             Not_There = Variable_object.Array_of_available_spots[First_Index - 1][(int(coordinates[1])) - 1]
-        #print('All good. Nothing\'s there.')
         coordinates[0] = coordinates[0].upper()
         return coordinates
 
@@ -168,8 +157,3 @@ class Input_fns:
             return True
         else:
             return False
-'''
-New_input = Input_fns()
-Var = Output_array()
-New_input.Who_starts()
-'''

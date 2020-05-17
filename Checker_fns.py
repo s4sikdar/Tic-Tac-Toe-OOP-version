@@ -1,7 +1,6 @@
 # These are saved as .txt files most likely. Copy the text onto your python IDE
 # (preferrably use Atom) and save this as "Checker_fns.py"
 import Variables
-from Variables import *
 from Print_fns import Print_Functions
 # This class is for our checker functions, which basically are responsible
 # for monitoring the status of the game (i.e. if someone won, etc.)
@@ -58,7 +57,6 @@ class Checker:
             print('Player', Diagonal, 'wins!')
             return False
         else:
-            #print('Nothing in a row. Noone wins yet.')
             return True
 
     # this checks to see if all spots are filled up
@@ -76,11 +74,3 @@ class Checker:
             for j in (range(len(Variable_object.Array_of_available_spots[i]))):
                 Variable_object.Array_of_available_spots[i][j] = True
                 Variable_object.Array_of_player_pieces[i][j] = 0
-'''
-Status = Output_array()
-Checkers = Checker()
-Printer = Print_Functions()
-print(Checkers.No_one_wins(Status.Array_of_player_pieces,\
-                           Printer,\
-                           Status))
-'''# test code

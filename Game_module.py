@@ -1,11 +1,7 @@
 # These are saved as .txt files most likely. Copy the text onto your python IDE
 # (preferrably use Atom) and save this as "Game_module.py"
 import Artificial_Intelligence
-from Artificial_Intelligence import *
-import Print_fns
-from Print_fns import Print_Functions
 from Print_fns import Input_fns
-from Variables import Output_array
 
 # This class is for the single-player version of Tic Tac Toe
 class Run_games:
