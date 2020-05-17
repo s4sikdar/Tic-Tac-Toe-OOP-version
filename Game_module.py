@@ -35,15 +35,6 @@ class Run_games:
                 print('Nobody wins.')
                 return [Name,difficulty,False,False,True]
                 break
-            #X = input('Do you wish to exit?')
-            #if (X == 'Y'):
-            #    print('Out before the AI')
-            #    break
-            #elif (X == 'N'):
-            #    print('Moving to the AI')
-            #print_board()
-            #for i in (range(len(Array_of_player_pieces))):
-            #    print(Array_of_player_pieces[i])
             if (Variable_object.player_1):
                 Coordinates = Artificial_Intelligence_object.minimax(difficulty,\
                                       Variable_object.Array_of_player_pieces,\
@@ -54,8 +45,6 @@ class Run_games:
                                       Variable_object.Array_of_player_pieces,\
                                       True,1,Checker_object,2,[0,0],\
                                       Variable_object.Array_of_available_spots)
-            #print(Coordinates)
-            #print(Coordinates)
             Variable_object.player_1 = not(Variable_object.player_1)
             Print_object.Mutate_Board(Variable_object,\
                                       [Variable_object.Number_legend.get(int(Coordinates[0][0])),\
@@ -221,20 +210,14 @@ class Multiplayer:
             Print_object.print_board(Variable_object)
             Coordinates = Input_object.Nothing_There(Variable_object.player_1,Variable_object,\
                                                      True)
-            #for i in (range(len(Array_of_available_spots))): #Test  code
-            #    print(Array_of_player_pieces[i])
             Print_object.Mutate_Board(Variable_object,Coordinates)
-            #for i in (range(len(Array_of_available_spots))):#Test  code
-            #    print(Array_of_player_pieces[i])
             Nobody_has_won = Checker_object.No_one_wins(Variable_object.Array_of_player_pieces,\
                                                         Print_object,\
                                                         Variable_object)
             if (not(Nobody_has_won)):
                 if Variable_object.player_1:
-                    #print([Name,Second_Name,True,False,False]) #Test code
                     return [Name,Second_Name,True,False,False]
                 else:
-                    #print([Name,Second_Name,False,True,False]) #Test code
                     return [Name,Second_Name,False,True,False]
             All_filled = Checker_object.All_Filled_Up(Variable_object.Array_of_available_spots)
             Nobody_Wins = (Nobody_has_won and All_filled)
@@ -244,7 +227,6 @@ class Multiplayer:
                 return [Name,Second_Name,False,False,True]
                 break
             Variable_object.player_1 = not(Variable_object.player_1)
-        #print('Done!') #Test  code
 
     # This was a version of the game where we could repeatedly run the Multiplayer
     # option as much as we wanted, until we opted not to continue
@@ -259,27 +241,3 @@ class Multiplayer:
             if Continue:
                 Checker_object.Reset_the_board(Variable_object)
                 Print_object.Clear_the_board(Variable_object)
-        #print('Done!')
-
-'''
-AI = The_AI_program()
-Check = Checker()
-Inputs = Input_fns()
-Print_obj = Print_Functions()
-Variables_object = Output_array()
-The_game = Run_games()
-The_game.Run_Single_player('Sailer',3,AI,Check,Inputs,Print_obj,Variables_object)
-'''
-
-'''
-Multi = Multiplayer()
-Name1 = 'Wallis'
-Name2 = 'Sailer'
-Checkers = Checker()
-Vars = Output_array()
-Printer = Print_Functions()
-Inputs = Input_fns()
-#Multi.Run_Game(Name1,Name2,Checkers,Vars,Printer,Inputs)
-Multi.Tic_Tac_Toe_Interactive_Version(Name1,Name2,Checkers,Vars,Printer,Inputs)
-'''
-# All test code. Nothing to see here.
