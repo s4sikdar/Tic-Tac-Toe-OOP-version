@@ -1,4 +1,4 @@
-<h1 align = "center">Tic Tac Toe<h1>
+<h1 align = "center">Tic Tac Toe</h1>
 <p>
 This is a Tic Tac Toe game I wrote. I created a multiplayer version, and a single player version using the minimax algorithm. I also created a system that allows users to create 
 profiles to play as, after which the game would save their progress and rank users based on their performances in the single and multiplayer arenas. 
