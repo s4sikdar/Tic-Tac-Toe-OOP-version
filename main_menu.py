@@ -1,5 +1,3 @@
-# These are saved as .txt files most likely. Copy the text onto your python IDE
-# (preferrably use Atom) and save this as "File_and_menu.py"
 from game_tracking_variables import GameVariables
 from print_methods import PrintFunctions
 from input_methods import InputFunctions

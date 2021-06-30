@@ -1,5 +1,3 @@
-# These are saved as .txt files most likely. Copy the text onto your python IDE
-# (preferrably use Atom) and save this as "Artificial_Intelligence.py"
 import game_tracking_variables
 from checker_fns import Checker
 import sys

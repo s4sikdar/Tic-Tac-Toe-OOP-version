@@ -1,5 +1,3 @@
-# These are saved as .txt files most likely. Copy the text onto your python IDE
-# (preferrably use Atom) and save this as "Game_module.py"
 from artificial_intelligence import TheAIProgram
 import sys
 from checker_fns import Checker
