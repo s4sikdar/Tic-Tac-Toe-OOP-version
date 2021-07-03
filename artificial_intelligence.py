@@ -1,5 +1,6 @@
 import game_tracking_variables
 from checker_fns import Checker
+from .utils import checker_utilities
 import sys
 
 # This class is for our AI that comes up with the right moves using the minimax

@@ -7,52 +7,69 @@ class Checker:
         the status of the game (i.e. if someone won, etc.).
     """
 
-    # Name: true across
     def all_3_equal(self,row):
         """
             This function returns a boolean expression checking the row
             having all equal elements.
+
+            Arguments:
+            row: list of 3 integers
+
+            Time Complexity: O(1) - List accessing (L[0]) is O(1), boolean operators
+            are O(1)
         """
         return ((row[0] == row[1]) and (row[1] == row[2]))
 
-    # Checks all of the three rows to see if we have three in a row
     def three_in_a_row(self,board):
         """
-            This function checks all 3 rows to see if we have 3 in a row.
-        """
-        for i in (range(len(board))):
-            if (self.all_3_equal(board[i])):
-                if (not (board[i][0] == 0)):
-                    return board[i][0]
-        return None
+            This function checks all 3 rows to see if we have 3 in a row. Returns
+            the integer that was found 3 times in a row, returns None otherwise.
 
-    # Checks all of the three columns to see if we have three in a column
+            Arguments:
+            board: list of 3 lists, each with 3 integers that are either 0, 1 or 2
+
+            Time Complexity: O(n) runtime where n is the number of elements in the
+            list board (3)
+        """
+        for row in board:
+            if (self.all_3_equal(row)) and bool(row[0]):
+                return row[0]
+
     def three_in_a_column(self,board):
         """
             This function checks all 3 columns to see if we have 3 in a column.
+            Returns the integer if it is not 0, returns None otherwise
+
+            Arguments:
+            board: list of 3 lists, each with 3 integers that are either 0, 1 or 2
+
+            Time Complexity: O(n) runtime where n is the number of elements in the
+            list board (3)
         """
         for i in (range(len(board[0]))):
-            if ((board[0][i] == board[1][i]) and (board[1][i] == board[2][i])):
-                if (not (board[0][i] == 0)):
-                    return board[0][i]
-        return None
+            if (board[0][i] == board[1][i]) and (board[1][i] == board[2][i]) \
+                and bool(board[0][i]):
+                return board[0][i]
 
-    # Checks the diagonals to see if something is there
     def diagonals(self,board):
         """
-            This function checks to see if we have 3 in a row diagonally.
-        """
-        if ((board[0][0] == board[1][1]) and (board[1][1] == board[2][2])):
-            if (not (board[0][0] == 0)):
-                return board[0][0]
-        elif ((board[0][2] == board[1][1]) and (board[1][1] == board[2][0])):
-            if (not (board[1][1] == 0)):
-                return board[1][1]
-        else:
-            return None
+            This function checks to see if we have 3 numbers in a row
+            diagonally on a list of 3 lists of numbers. Returns the number
+            that matches this condition if it isn't 0. Returns None otherwise.
 
-    # Checks if we have a winner
-    # no_one_wins(self,Game_board,Print_fn_object,Variable_object):
+            Arguments:
+            board: list of 3 lists, each with 3 integers that are either 0, 1 or 2
+
+            Time Complexity: O(1) - List accessing (L[0]) is O(1), boolean operators
+            and boolean conversions are all O(1)
+        """
+        if ((board[0][0] == board[1][1]) and (board[1][1] == board[2][2])) \
+            and bool(board[1][1]):
+            return board[0][0]
+        elif ((board[0][2] == board[1][1]) and (board[1][1] == board[2][0])) \
+            and bool(board[1][1]):
+            return board[1][1]
+
     def no_one_wins(self,print_fn_object,variable_object):
         """
             This function checks to see if we have a winner, returning true if
@@ -77,7 +94,6 @@ class Checker:
         else:
             return True
 
-    # this checks to see if all spots are filled up
     def all_filled_up(self,available_spots_left):
         """
             This function checks to see if all spots are filled up.
@@ -88,7 +104,6 @@ class Checker:
 
         return (row_1 and row_2 and row_3)
 
-    # We reset the boards that store the numbers and booleans
     def reset_the_board(self, variable_object):
         """
             This function resets the boards in the variable object that track

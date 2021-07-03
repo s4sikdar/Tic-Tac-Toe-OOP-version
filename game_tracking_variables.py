@@ -1,3 +1,9 @@
+import unittest
+import copy
+
+
+
+
 class GameVariables:
     """
         This is our class for the variables that used to keep track, print out,
@@ -89,3 +95,53 @@ class GameVariables:
         # used when we choose single or multiplayer mode
         # Name: Player_Options
         self.instance_single_or_multiplayer  = ['s','m']
+
+    def reset_the_board(self):
+        """
+            reset_the_board: resets all values in self.instance_current_status_of_board_pieces
+            to 0 and all values in self.instance_array_of_available_spots to True (how the
+            game initially starts)
+
+            Requires:
+            self.instance_current_status_of_board_pieces and
+            self.instance_array_of_available_spots are both lists of lists, each list inside being
+            of the same length.
+
+            runtime: O(m*n) where m is the number of lists in
+            self.instance_current_status_of_board_pieces and n is the number of elements in each
+            list of self.instance_current_status_of_board_pieces
+        """
+        for index, row in self.instance_current_status_of_board_pieces:
+            for counter, elem in enumerate(row):
+                row[counter] = 0
+                self.instance_array_of_available_spots[index][counter] = True
+
+
+class TestGameVariables(unittest.TestCase):
+    """
+        This class just tests the GameVariables.reset_the_board method. It may have been better
+        to put it in a separate file, but it's one test, so I'll just put it here.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.game_vars = GameVariables()
+
+    def test_reset_the_board(self):
+        board = copy.deepcopy(self.game_vars.instance_current_status_of_board_pieces)
+        available_spots = copy.deepcopy(self.game_vars.instance_array_of_available_spots)
+        for index, row in enumerate(self.game_vars.instance_current_status_of_board_pieces):
+            row[index] = 1
+            self.game_vars.instance_array_of_available_spots[index][index] = False
+        self.assertNotEqual(board, self.game_vars.instance_current_status_of_board_pieces)
+        self.assertNotEqual(available_spots, self.game_vars.instance_array_of_available_spots)
+        for index, row in enumerate(self.game_vars.instance_current_status_of_board_pieces):
+            row[index] = 0
+            self.game_vars.instance_array_of_available_spots[index][index] = True
+        self.assertEqual(board, self.game_vars.instance_current_status_of_board_pieces)
+        self.assertEqual(available_spots, self.game_vars.instance_array_of_available_spots)
+
+
+
+
+if __name__ == '__main__':
+    unittest.main()
