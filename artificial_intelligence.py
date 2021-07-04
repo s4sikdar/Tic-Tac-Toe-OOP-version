@@ -34,7 +34,7 @@ class TheAIProgram:
         """
         # Whether or not we found 3 in a row in these directions:
         # We do only the horizontal and vertical directions since we haven't checked
-        # where we are at diagonally, in that we may be checking a diagonal direction that
+        # where we are at diagonally, meaning that we may be checking for 3 in a row diagonally, which
         # is invalid with this coordinate. So if you have a 3 x 3 list of lists, and you are in the
         # second element of the first list, there's no diagonal set of 3 you can reach. To visualize,
         # look wherer the 1 representing the current coordinate is in the 3x3 list below:
