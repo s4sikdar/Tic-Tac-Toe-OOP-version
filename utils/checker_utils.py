@@ -77,7 +77,7 @@ def somebody_wins(board):
     horizontal = three_in_a_row(board)
     vertical = three_in_a_column(board)
     diagonal = diagonals(board)
-    return bool(horizontal) or bool(vertical) or bool(diagonal)
+    return horizontal or vertical or diagonal
 
 def all_filled_up(array_of_available_spots):
     """

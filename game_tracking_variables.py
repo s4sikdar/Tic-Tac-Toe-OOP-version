@@ -2,8 +2,6 @@ import unittest
 import copy
 
 
-
-
 class GameVariables:
     """
         This is our class for the variables that used to keep track, print out,
@@ -111,7 +109,7 @@ class GameVariables:
             self.instance_current_status_of_board_pieces and n is the number of elements in each
             list of self.instance_current_status_of_board_pieces
         """
-        for index, row in self.instance_current_status_of_board_pieces:
+        for index, row in enumerate(self.instance_current_status_of_board_pieces):
             for counter, elem in enumerate(row):
                 row[counter] = 0
                 self.instance_array_of_available_spots[index][counter] = True

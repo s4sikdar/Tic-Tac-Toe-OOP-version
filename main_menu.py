@@ -4,7 +4,6 @@ from input_methods import InputFunctions
 from game_module import SinglePlayer
 from game_module import Multiplayer
 from file_and_database_module import FileAndDatabaseObject
-from checker_fns import Checker
 from artificial_intelligence import TheAIProgram
 import sys
 import os
@@ -31,7 +30,7 @@ class MainMenuClass:
 
     def select_player_option(self,game_tracking_var_object,file_and_database,\
                              single_player_object,multiplayer_game,ai_object,\
-                             checker_object,input_method_object,print_method_object):
+                             input_method_object,print_method_object):
         """
             This function runs the grand scheme of the single_player_object, taking care
             of which mode is being played at, the difficulty, the adjsuting of the
@@ -58,7 +57,7 @@ class MainMenuClass:
                 Second_name = file_and_database.instance_players_signed_in[1]))
                 difficulty = self.select_difficulty(game_tracking_var_object)
                 result = single_player_object.run_single_player(string_input,difficulty,\
-                                                                ai_object,checker_object,\
+                                                                ai_object,\
                                                                 input_method_object,\
                                                                 print_method_object,\
                                                                 game_tracking_var_object)
@@ -74,7 +73,7 @@ class MainMenuClass:
                 difficulty = self.select_difficulty(game_tracking_var_object)
                 result = single_player_object.run_single_player(\
                 file_and_database.instance_players_signed_in[name_index],\
-                difficulty,ai_object,checker_object,input_method_object,\
+                difficulty,ai_object,input_method_object,\
                 print_method_object,game_tracking_var_object)
                 file_and_database.result_score_single_player(result[0],result[1],\
                                                              result[2],result[3],\
@@ -85,7 +84,6 @@ class MainMenuClass:
                 print('You will be signed in as nobody.')
                 difficulty = self.select_difficulty(game_tracking_var_object)
                 result = single_player_object.run_single_player(None,difficulty,ai_object,\
-                                                                checker_object,\
                                                                 input_method_object,\
                                                                 print_method_object,\
                                                                 game_tracking_var_object)
@@ -104,8 +102,7 @@ class MainMenuClass:
                 if ((len(file_and_database.instance_database)) == 1):
                     print('Not enough names in the database. Noboody will be signed\
  in during the game.')
-                    result = multiplayer_game.run_game('','',checker_object,\
-                                                       game_tracking_var_object,\
+                    result = multiplayer_game.run_game('','', game_tracking_var_object,\
                                                        print_method_object,\
                                                        input_method_object)
                 else:
@@ -121,7 +118,7 @@ signed in. Enter a different name.\n')
                     (First_name = file_and_database.instance_players_signed_in[0],\
                     Second_name = file_and_database.instance_players_signed_in[1]))
                     result = multiplayer_game.run_game(file_and_database.instance_players_signed_in[i],\
-                                                       name,checker_object,\
+                                                       name,\
                                                        game_tracking_var_object,\
                                                        print_method_object,\
                                                        input_method_object)
@@ -135,16 +132,16 @@ signed in. Enter a different name.\n')
                 Second_name = file_and_database.instance_players_signed_in[1]))
                 result = multiplayer_game.run_game(file_and_database.instance_players_signed_in[0],\
                                                    file_and_database.instance_players_signed_in[1],\
-                                                   checker_object,game_tracking_var_object,\
+                                                   game_tracking_var_object,\
                                                    print_method_object,input_method_object)
                 file_and_database.result_score_multiplayer(result[0],result[1],\
                                                            result[2],result[3],\
                                                            result[4])
             else:
                 print('Nobody is signed in, so the game will continue without anyone signed in.')
-                result = multiplayer_game.run_game(None,None,checker_object,game_tracking_var_object,\
+                result = multiplayer_game.run_game(None,None,game_tracking_var_object,\
                                                    print_method_object,input_method_object)
-        checker_object.reset_the_board(game_tracking_var_object)
+        game_tracking_var_object.reset_the_board()
         print_method_object.clear_the_board(game_tracking_var_object)
 
     def print_rules(self):
@@ -163,7 +160,7 @@ signed in. Enter a different name.\n')
 
 
     def leaderboards(self,file_and_database,game_tracking_var_object,single_player_object,\
-                     multiplayer_game,ai_object,checker_object,input_method_object,\
+                     multiplayer_game,ai_object,input_method_object,\
                      print_method_object):
         """
             This is our leaderboards function that our leaderboards option leads to
@@ -181,7 +178,7 @@ clear the scores (everyone starts at 0 again),\n\'clear\' to clear all names, \
 the leaderboards.\n')
         if ((string_input.casefold()) == 'b'):
             self.main_menu(file_and_database,game_tracking_var_object,single_player_object,\
-                           multiplayer_game,ai_object,checker_object,input_method_object,\
+                           multiplayer_game,ai_object,input_method_object,\
                            print_method_object)
         else:
             if ((string_input.casefold()) == 'r'):
@@ -196,12 +193,12 @@ the leaderboards.\n')
                 file_and_database.clear_a_name()
             self.leaderboards(file_and_database,game_tracking_var_object,\
                               single_player_object,multiplayer_game,\
-                              ai_object,checker_object,input_method_object,\
+                              ai_object,input_method_object,\
                               print_method_object)
 
 
     def main_menu(self,file_and_database,game_tracking_var_object,single_player_object,\
-                  multiplayer_game,ai_object,checker_object,input_method_object,\
+                  multiplayer_game,ai_object,input_method_object,\
                   print_method_object):
         """
             This is our start menu to start from. You can quit, sign in, play the
@@ -220,7 +217,7 @@ the leaderboards.\n')
  and \'o\' to sign out.\n')
         if ((string_input.casefold()) == 'l'):
             self.leaderboards(file_and_database,game_tracking_var_object,single_player_object,\
-                              multiplayer_game,ai_object,checker_object,input_method_object,\
+                              multiplayer_game,ai_object,input_method_object,\
                               print_method_object)
         else:
             if ((string_input.casefold()) == 's'):
@@ -230,12 +227,12 @@ the leaderboards.\n')
             elif ((string_input.casefold()) == 'g'):
                 self.select_player_option(game_tracking_var_object,file_and_database,\
                                           single_player_object,multiplayer_game,\
-                                          ai_object,checker_object,\
+                                          ai_object,\
                                           input_method_object,print_method_object)
             else:
                 return None
             self.main_menu(file_and_database,game_tracking_var_object,single_player_object,\
-                           multiplayer_game,ai_object,checker_object,input_method_object,\
+                           multiplayer_game,ai_object,input_method_object,\
                            print_method_object)
 
 file_object = FileAndDatabaseObject()
@@ -243,10 +240,10 @@ game_tracking_var_object = GameVariables()
 single_player_object = SinglePlayer()
 multi = Multiplayer()
 AI = TheAIProgram()
-checker_obj = Checker()
 input_obj = InputFunctions()
 print_obj = PrintFunctions()
 Main = MainMenuClass()
 
-Main.main_menu(file_object,game_tracking_var_object,single_player_object,multi,\
-               AI,checker_obj,input_obj,print_obj)
+if __name__ == '__main__':
+    Main.main_menu(file_object,game_tracking_var_object,single_player_object,multi,\
+                   AI,input_obj,print_obj)

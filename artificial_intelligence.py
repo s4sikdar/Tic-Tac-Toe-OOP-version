@@ -1,6 +1,5 @@
 import game_tracking_variables
-from checker_fns import Checker
-from .utils import checker_utilities
+from utils import checker_utils
 import sys
 
 # This class is for our AI that comes up with the right moves using the minimax
@@ -14,13 +13,13 @@ class TheAIProgram:
     # This basically checks if all 3 numbers are the same across a row of 3
     # and they equal the number in question
     # All_the_same
-    def all_the_same_values(self,number,player_pieces,checker_object):
+    def all_the_same_values(self,number,player_pieces):
         """
             This checks if all 3 numbers are the same across a row of 3, and they
             equal the number in question.
         """
         all_equal = (number == player_pieces[0])\
-                     and (checker_object.all_3_equal(player_pieces))
+                     and (checker_utils.all_3_equal(player_pieces))
         return all_equal
 
 
@@ -28,8 +27,7 @@ class TheAIProgram:
     # coordinate
     #Name: Three_row
     def three_in_a_row_at_this_spot(self,current_player_number,\
-                                    pieces_on_board,current_coordinate,\
-                                    checker_object):
+                                    pieces_on_board,current_coordinate):
         """
             This checks if we have 3 in a row across any possible rows of 3 at
             the coordinate in question.
@@ -44,13 +42,11 @@ class TheAIProgram:
         #  [0, 0, 0],
         #  [0, 0, 0]]
         horzontal_row_of_3 = self.all_the_same_values(current_player_number,\
-                                                      pieces_on_board[current_coordinate[0]],\
-                                                      checker_object)
+                                                      pieces_on_board[current_coordinate[0]])
         vertical_row_of_3 = self.all_the_same_values(current_player_number,\
                                                     [pieces_on_board[0][current_coordinate[1]],\
                                                      pieces_on_board[1][current_coordinate[1]],\
-                                                     pieces_on_board[2][current_coordinate[1]]],\
-                                                     checker_object)
+                                                     pieces_on_board[2][current_coordinate[1]]])
 
         # [[1, 0, 0],
         #  [0, 0, 0],
@@ -63,8 +59,7 @@ class TheAIProgram:
                     self.all_the_same_values(current_player_number,\
                                             [pieces_on_board[0][0],\
                                              pieces_on_board[1][1],\
-                                             pieces_on_board[2][2]],\
-                                             checker_object))
+                                             pieces_on_board[2][2]]))
 
         # [[0, 0, 1],
         #  [0, 0, 0],
@@ -77,8 +72,7 @@ class TheAIProgram:
                     self.all_the_same_values(current_player_number,\
                                             [pieces_on_board[0][2],\
                                              pieces_on_board[1][1],\
-                                             pieces_on_board[2][0]],\
-                                             checker_object))
+                                             pieces_on_board[2][0]]))
 
         # [[0, 1, 0],
         #  [1, 0, 1],
@@ -97,13 +91,11 @@ class TheAIProgram:
                     (self.all_the_same_values(current_player_number,\
                                              [pieces_on_board[0][0],\
                                               pieces_on_board[1][1],\
-                                              pieces_on_board[2][2]],\
-                                              checker_object)) or\
+                                              pieces_on_board[2][2]])) or\
                     (self.all_the_same_values(current_player_number,\
                                              [pieces_on_board[0][2],\
                                               pieces_on_board[1][1],\
-                                              pieces_on_board[2][0]],\
-                                              checker_object)))
+                                              pieces_on_board[2][0]])))
 
 
     def blocked_row_of_2(self,current_player_number,\
@@ -463,7 +455,7 @@ class TheAIProgram:
         return fork_opposite
 
     def static_evaluation(self,current_coordinate,player_pieces_array,player_number,\
-                          other_player_number,checker_object):
+                          other_player_number):
         """
             This is the static evaluation function that puts everything together.
             We basically check what the evaluation is at this spot based on a ranking
@@ -475,7 +467,7 @@ class TheAIProgram:
         # The corresponding states will cause us to return a list with static evaluations
         # at that spots.
         win = self.three_in_a_row_at_this_spot(player_number,player_pieces_array,\
-                                               current_coordinate,checker_object)
+                                               current_coordinate)
         a_block = self.block(current_coordinate,player_pieces_array,player_number,\
                              other_player_number)
         forks = self.fork(current_coordinate,player_pieces_array,player_number)
@@ -498,14 +490,14 @@ class TheAIProgram:
         else:
             return [current_coordinate,1]
 
-    def no_wins(self,player_pieces_array,checker_object):
+    def no_wins(self,player_pieces_array):
         """
             This is to check if nobody won. It returns false and the direction of the
             win if it's the case. We use it in minimax
         """
-        horizontal = checker_object.three_in_a_row(player_pieces_array)
-        vertical = checker_object.three_in_a_column(player_pieces_array)
-        diagonal = checker_object.diagonals(player_pieces_array)
+        horizontal = checker_utils.three_in_a_row(player_pieces_array)
+        vertical = checker_utils.three_in_a_column(player_pieces_array)
+        diagonal = checker_utils.diagonals(player_pieces_array)
 
         if ((not (horizontal is None)) and (not(horizontal == 0))):
             return [False, horizontal]
@@ -518,7 +510,7 @@ class TheAIProgram:
 
 
     def minimax(self,recursion_depth,player_pieces_array,maximizing_player,player_number,\
-                checker_object,other_player_number,current_coordinate,available_spots_on_the_board):
+                other_player_number,current_coordinate,available_spots_on_the_board):
         """
             This is my implementation of the minimax algorithm. Type 'minimax algorithm'
             in YouTube/Google for more information. There's some helpful info on YouTube on
@@ -545,8 +537,8 @@ class TheAIProgram:
         min_eval = sys.maxsize
         max_evaluation = [0,0]
         min_evaluation = [0,0]
-        win = self.no_wins(player_pieces_array,checker_object)
-        filled_up = checker_object.all_filled_up(available_spots_on_the_board)
+        win = self.no_wins(player_pieces_array)
+        filled_up = checker_utils.all_filled_up(available_spots_on_the_board)
         evaluation = []
         if (((recursion_depth == 0) or (not win[0])) or filled_up):
             # Basically has someone won, or is the array filled, or is the depth at 0
@@ -554,8 +546,7 @@ class TheAIProgram:
                 evaluation = self.static_evaluation(current_coordinate,\
                                                     player_pieces_array,\
                                                     other_player_number,\
-                                                    player_number,\
-                                                    checker_object)
+                                                    player_number)
                 # This line increases values of moves that win earlier, to where
                 # if we can find a way to win in 3 moves instead of 5 or 6, let's do
                 # that. This could be greater than 1 in the event that we have found
@@ -566,8 +557,7 @@ class TheAIProgram:
                 evaluation = self.static_evaluation(current_coordinate,\
                                                     player_pieces_array,\
                                                     other_player_number,\
-                                                    player_number,\
-                                                    checker_object)
+                                                    player_number)
                 # The same thing happens in the opposite direction
                 evaluation[1] *= ((-1) * (recursion_depth + 1))
                 return evaluation
@@ -592,7 +582,6 @@ class TheAIProgram:
                                                   player_pieces_array,\
                                                   False,\
                                                   other_player_number,\
-                                                  checker_object,\
                                                   player_number,\
                                                   [i,j],\
                                                   available_spots_on_the_board)
@@ -615,7 +604,6 @@ class TheAIProgram:
                                                   player_pieces_array,\
                                                   True,\
                                                   other_player_number,\
-                                                  checker_object,\
                                                   player_number,\
                                                   [i,j],\
                                                   available_spots_on_the_board)
