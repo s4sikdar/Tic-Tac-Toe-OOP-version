@@ -10,9 +10,35 @@ class TheAIProgram:
         This class is responsible for the artificial intelligence component for the
         single player version of the game - playing against the computer.
     """
-    # This basically checks if all 3 numbers are the same across a row of 3
-    # and they equal the number in question
-    # All_the_same
+
+    def __init__(self):
+        # Used for which directions to check for an unblocked row of 2. Used in fork_helper
+        self.directions = {
+            'horizontal': True,
+            'vertical': True,
+            'diagonal': True
+        }
+
+    def clean(self):
+        """
+            Used to "clean" the directions dictionary for when we wish to use it the next
+            time.
+        """
+        for direc in self.directions:
+            self.directions[direc] = True
+
+    def end_decorator(func):
+        """
+            Used to make sure that the clean method cleans our directions dictionary after
+            functions are run, by using this function as a decorator. Only use this for
+            functions that use and modify self.directions.
+        """
+        def decorated_func(self, *args, **kwargs):
+            return_val = func(*args, **kwargs)
+            self.clean()
+            return return_val
+        return decorated_func
+
     def all_the_same_values(self,number,player_pieces):
         """
             This checks if all 3 numbers are the same across a row of 3, and they
@@ -23,9 +49,6 @@ class TheAIProgram:
         return all_equal
 
 
-    # This basically if we have 3 in a row across any possible rows at that
-    # coordinate
-    #Name: Three_row
     def three_in_a_row_at_this_spot(self,current_player_number,\
                                     pieces_on_board,current_coordinate):
         """
@@ -87,15 +110,17 @@ class TheAIProgram:
         # Here the 1 represents current_coordinate on the board. Since we're in the middle,
         # we check 4 directions now.
         else:
-            return (horzontal_row_of_3 or vertical_row_of_3 or\
-                    (self.all_the_same_values(current_player_number,\
-                                             [pieces_on_board[0][0],\
-                                              pieces_on_board[1][1],\
-                                              pieces_on_board[2][2]])) or\
-                    (self.all_the_same_values(current_player_number,\
-                                             [pieces_on_board[0][2],\
-                                              pieces_on_board[1][1],\
-                                              pieces_on_board[2][0]])))
+            # return (horzontal_row_of_3 or vertical_row_of_3 or\
+            #         (self.all_the_same_values(current_player_number,\
+            #                                  [pieces_on_board[0][0],\
+            #                                   pieces_on_board[1][1],\
+            #                                   pieces_on_board[2][2]])) or\
+            #         (self.all_the_same_values(current_player_number,\
+            #                                  [pieces_on_board[0][2],\
+            #                                   pieces_on_board[1][1],\
+            #                                   pieces_on_board[2][0]])))
+            return (horzontal_row_of_3 or vertical_row_of_3 or \
+                   (checker_utils.diagonals(pieces_on_board) == current_player_number)) 
 
 
     def blocked_row_of_2(self,current_player_number,\
@@ -120,8 +145,7 @@ class TheAIProgram:
 
         if ((current_number_frequency == 1) and (opposite_number_frequency == 2)):
             return True
-        else:
-            return False
+        return False
 
 
     def block(self,current_coordinate,player_pieces_array,current_player_number,\
@@ -153,7 +177,8 @@ class TheAIProgram:
                                                           [player_pieces_array[0][current_coordinate[1]],\
                                                            player_pieces_array[1][current_coordinate[1]],\
                                                            player_pieces_array[2][current_coordinate[1]]])
-
+        diagonal_arr_1 = [player_pieces_array[0][0],player_pieces_array[1][1],player_pieces_array[2][2]]
+        diagonal_arr_2 = [player_pieces_array[2][0],player_pieces_array[1][1],player_pieces_array[0][2]]
         # [[1, 0, 0],
         #  [0, 0, 0],
         #  [0, 0, 1]]
@@ -161,12 +186,10 @@ class TheAIProgram:
         # have to recreate the array going in the diagonal direction to pass into
         # the helper function
         if current_coordinate in [[0,0], [2,2]]:
-            its_a_block =  horizontal_blocked_row_of_2 or\
-                           vertical_blocked_row_of_2 or\
-                          (self.blocked_row_of_2(current_player_number,opposite_player_number,\
-                                                [player_pieces_array[0][0],\
-                                                 player_pieces_array[1][1],\
-                                                 player_pieces_array[2][2]]))
+            its_a_block = horizontal_blocked_row_of_2 or vertical_blocked_row_of_2 or\
+                         (self.blocked_row_of_2(current_player_number,
+                                                opposite_player_number,
+                                                diagonal_arr_1))
             return its_a_block
 
         # [[0, 0, 1],
@@ -176,12 +199,10 @@ class TheAIProgram:
         # have to recreate the array going in the opposite diagonal to pass into
         # the helper function
         elif current_coordinate in [[0,2],[2,0]]:
-            its_a_block = vertical_blocked_row_of_2 or\
-                          horizontal_blocked_row_of_2 or\
-                          (self.blocked_row_of_2(current_player_number,opposite_player_number,\
-                                                [player_pieces_array[2][0],\
-                                                 player_pieces_array[1][1],\
-                                                 player_pieces_array[0][2]]))
+            its_a_block = vertical_blocked_row_of_2 or horizontal_blocked_row_of_2 or \
+                         (self.blocked_row_of_2(current_player_number,
+                                                opposite_player_number,
+                                                diagonal_arr_2))
             return its_a_block
 
         # [[0, 0, 0],
@@ -189,17 +210,13 @@ class TheAIProgram:
         #  [0, 0, 0]]
         # Here the 1 represents current_coordinate on the board. Since we're in the middle,
         # we check 4 directions now.
-        elif current_coordinate is [1,1]:
-            its_a_block = horizontal_blocked_row_of_2 or\
-                          vertical_blocked_row_of_2 or\
-                          (self.blocked_row_of_2(current_player_number,opposite_player_number,\
-                                                [player_pieces_array[0][0],\
-                                                 player_pieces_array[1][1],\
-                                                 player_pieces_array[2][2]])) or\
-                          (self.blocked_row_of_2(current_player_number,opposite_player_number,\
-                                                [player_pieces_array[2][0],\
-                                                 player_pieces_array[1][1],\
-                                                 player_pieces_array[0][2]]))
+        elif current_coordinate == [1,1]:
+            its_a_block = horizontal_blocked_row_of_2 or vertical_blocked_row_of_2 or \
+                          (self.blocked_row_of_2(current_player_number,opposite_player_number,
+                                                 diagonal_arr_1)) or \
+                          (self.blocked_row_of_2(current_player_number,opposite_player_number,
+                                                 diagonal_arr_2))
+
             return its_a_block
 
         # [[0, 1, 0],
@@ -229,12 +246,11 @@ class TheAIProgram:
 
         if ((times_number == 2) and (times_0 == 1)):
             return True
-        else:
-            return False
+        return False
 
 
     def fork_helper(self,current_player_number,current_coordinate,\
-                     player_pieces_array,horizontal,vertical,diagonal):
+                     player_pieces_array,directions):
         """
             Fork helper takes in a coordinate, array, 3 boolean values for the vertical,
             horizontal, and diagonal directions and checks where the coordinates are
@@ -274,14 +290,14 @@ class TheAIProgram:
         if current_coordinate in [[0,0],[2,2]]:
             # If there are 2 in a row in the appropriate directions and the boolean for that direction is true,
             # we just found a new undiscovered row of 2. The same applies below.
-            if (horizontal_2_in_a_row and horizontal):
+            if (horizontal_2_in_a_row and directions.get('horizontal')):
                 return [[current_coordinate[0],0],[current_coordinate[0],1],[current_coordinate[0],2]]
-            elif (vertical_2_in_a_row and vertical):
+            elif (vertical_2_in_a_row and directions.get('vertical')):
                 return [[0,current_coordinate[1]],[1,current_coordinate[1]],[2,current_coordinate[1]]]
             elif ((self.two_in_a_row(current_player_number,\
                                     [player_pieces_array[0][0],\
                                      player_pieces_array[1][1],\
-                                     player_pieces_array[2][2]])) and diagonal):
+                                     player_pieces_array[2][2]])) and directions.get('diagonal')):
                 return [[0,0],[1,1],[2,2]]
             else:
                 return []
@@ -293,14 +309,14 @@ class TheAIProgram:
         # have to recreate the array going in the opposite diagonal to pass into
         # the two_in_a_row function
         elif current_coordinate in [[0,2],[2,0]]:
-            if (horizontal_2_in_a_row and horizontal):
+            if (horizontal_2_in_a_row and directions.get('horizontal')):
                 return [[current_coordinate[0],0],[current_coordinate[0],1],[current_coordinate[0],2]]
-            elif (vertical_2_in_a_row and vertical):
+            elif (vertical_2_in_a_row and directions.get('vertical')):
                 return [[0,current_coordinate[1]],[1,current_coordinate[1]],[2,current_coordinate[1]]]
             elif ((self.two_in_a_row(current_player_number,\
                                     [player_pieces_array[0][2],\
                                      player_pieces_array[1][1],\
-                                     player_pieces_array[2][0]])) and diagonal):
+                                     player_pieces_array[2][0]])) and directions.get('diagonal')):
                 return [[0,2],[1,1],[2,0]]
             else:
                 return []
@@ -311,19 +327,19 @@ class TheAIProgram:
         # Here the 1 represents current_coordinate on the board. Since we're in the middle,
         # we check 4 directions now.
         elif (current_coordinate == [1,1]):
-            if (horizontal_2_in_a_row and horizontal):
+            if (horizontal_2_in_a_row and directions.get('horizontal')):
                 return [[current_coordinate[0],0],[current_coordinate[0],1],[current_coordinate[0],2]]
-            elif (vertical_2_in_a_row and vertical):
+            elif (vertical_2_in_a_row and directions.get('vertical')):
                 return [[0,current_coordinate[1]],[1,current_coordinate[1]],[2,current_coordinate[1]]]
             elif ((self.two_in_a_row(current_player_number,\
                                     [player_pieces_array[0][0],\
                                      player_pieces_array[1][1],\
-                                     player_pieces_array[2][2]])) and diagonal):
+                                     player_pieces_array[2][2]])) and directions.get('diagonal')):
                 return [[0,0],[1,1],[2,2]]
             elif ((self.two_in_a_row(current_player_number,\
                                     [player_pieces_array[0][2],\
                                      player_pieces_array[1][1],\
-                                     player_pieces_array[2][0]])) and diagonal):
+                                     player_pieces_array[2][0]])) and directions.get('diagonal')):
                 return [[0,2],[1,1],[2,0]]
             else:
                 return []
@@ -333,13 +349,14 @@ class TheAIProgram:
         #  [0, 1, 0]]
         # Here we're in any of the spots where there's a one. So we only check vertically or horizontally.
         else:
-            if (horizontal_2_in_a_row and horizontal):
+            if (horizontal_2_in_a_row and directions.get('horizontal')):
                 return [[current_coordinate[0],0],[current_coordinate[0],1],[current_coordinate[0],2]]
-            elif (vertical_2_in_a_row and vertical):
+            elif (vertical_2_in_a_row and directions.get('vertical')):
                 return [[0,current_coordinate[1]],[1,current_coordinate[1]],[2,current_coordinate[1]]]
             else:
                 return []
 
+    @clean_at_end_decorator
     def fork(self,current_coordinate,player_pieces_array,current_player_number):
         """
             A fork is where we have 2 unblocked rows of 2. By definition we could have
@@ -355,7 +372,7 @@ class TheAIProgram:
         first_set_of_2_in_a_row = self.fork_helper(current_player_number,\
                                                    current_coordinate,\
                                                    player_pieces_array,\
-                                                   True,True,True)
+                                                   self.directions)
         # The second set of 2 that is unblocked and hasn't been found already
         second_set_of_2 = []
         # If the first list returned from fork_helper was non empty then look for the second
@@ -365,43 +382,26 @@ class TheAIProgram:
                 # So if we found a diagonal row of 2, then we look through each coordinate
                 # in the row of 3 and find the next unblocked row of 2 with the diagonal
                 # direction switch turned off
-                for i in (range(len(first_set_of_2_in_a_row))):
-                    second_set_of_2 = self.fork_helper(current_player_number,\
-                                                       first_set_of_2_in_a_row[i],\
-                                                       player_pieces_array,\
-                                                       True,True,False)
-                    # If we get here, we found a second unblocked row of 2 that is connected
-                    # to our first row but isn't the first row. In this case
-                    # we have a fork, otherwise return false
-                    if ((len(second_set_of_2)) != 0):
-                        return True
-                return False
+                self.directions['diagonal'] = False
             elif ((first_set_of_2_in_a_row[0][0] == first_set_of_2_in_a_row[1][0]) and\
                   (first_set_of_2_in_a_row[1][0] == first_set_of_2_in_a_row[2][0])):
                 # If our set of 2 in a row was horizontal, turn off that direction,
                 # and look for the next unblocked row of 2.
-                for i in (range(len(first_set_of_2_in_a_row))):
-                    second_set_of_2 = self.fork_helper(current_player_number,\
-                                                       first_set_of_2_in_a_row[i],\
-                                                       player_pieces_array,\
-                                                       False,True,True)
-                    # We got here and found a second unblocked row of 2 that is not
-                    # our first one. So return true, otherwise return false.
-                    if ((len(second_set_of_2)) != 0):
-                        return True
-                return False
+                self.directions['horizontal'] = False
             else:
-                for i in (range(len(first_set_of_2_in_a_row))):
-                    second_set_of_2 = self.fork_helper(current_player_number,\
-                                                       first_set_of_2_in_a_row[i],\
-                                                       player_pieces_array,\
-                                                       True,False,True)
-                    # same as above
-                    if ((len(second_set_of_2)) != 0):
-                        return True
-                return False
-        else:
+                self.directions['vertical'] = False
+            for i in (range(len(first_set_of_2_in_a_row))):
+                second_set_of_2 = self.fork_helper(current_player_number,\
+                                                    first_set_of_2_in_a_row[i],\
+                                                    player_pieces_array,\
+                                                    self.directions)
+                # If we get here, we found a second unblocked row of 2 that is connected
+                # to our first row but isn't the first row. In this case
+                # we have a fork, otherwise return false
+                if ((len(second_set_of_2)) != 0):
+                    return True
             return False
+        return False
 
     def opposite_corner(self,current_coordinate,player_pieces_array,other_player_number):
         """
