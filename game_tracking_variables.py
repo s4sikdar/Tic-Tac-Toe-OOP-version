@@ -59,8 +59,8 @@ class GameVariables:
         #Name: Difficulty
         self.instance_translate_difficulty_to_recursion_levels = {
             'Easy':5,
-            'Medium':3,
-            'Hard':9
+            'Medium':1,
+            'Hard':7
         }
         # This helps us turn our entered inputs of the coordinates into according
         # numbers which will be used elsewhere

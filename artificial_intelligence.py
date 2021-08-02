@@ -1,3 +1,4 @@
+from pdb import set_trace
 import game_tracking_variables
 from utils import checker_utils
 import sys
@@ -13,10 +14,15 @@ class TheAIProgram:
 
     def __init__(self):
         # Used for which directions to check for an unblocked row of 2. Used in fork_helper
-        self.directions = {
+        self.instance_directions = {
             'horizontal': True,
             'vertical': True,
-            'diagonal': True
+            'diagonal_1': True,
+            'diagonal_2': True
+        }
+        self.instance_player_spots = {
+            1: [],
+            2: []
         }
 
     def clean(self):
@@ -24,17 +30,21 @@ class TheAIProgram:
             Used to "clean" the directions dictionary for when we wish to use it the next
             time.
         """
-        for direc in self.directions:
-            self.directions[direc] = True
+        for direc in self.instance_directions:
+            self.instance_directions[direc] = True
 
-    def end_decorator(func):
+    def clean_at_end_decorator(func):
         """
             Used to make sure that the clean method cleans our directions dictionary after
             functions are run, by using this function as a decorator. Only use this for
-            functions that use and modify self.directions.
+            functions that use and modify self.instance_directions, and are attached with an object
+            instance (reference to the object - self - is the first argument passed).
         """
+        # Originally tried this on my own, couldn't figure out how to pass the self argument
+        # first, found this solution on Stack Overflow:
+        # https://stackoverflow.com/questions/1263451/python-decorators-in-classes
         def decorated_func(self, *args, **kwargs):
-            return_val = func(*args, **kwargs)
+            return_val = func(self, *args, **kwargs)
             self.clean()
             return return_val
         return decorated_func
@@ -50,7 +60,7 @@ class TheAIProgram:
 
 
     def three_in_a_row_at_this_spot(self,current_player_number,\
-                                    pieces_on_board,current_coordinate):
+                                    pieces_on_board,current_coordinate, return_rows=False):
         """
             This checks if we have 3 in a row across any possible rows of 3 at
             the coordinate in question.
@@ -70,6 +80,20 @@ class TheAIProgram:
                                                     [pieces_on_board[0][current_coordinate[1]],\
                                                      pieces_on_board[1][current_coordinate[1]],\
                                                      pieces_on_board[2][current_coordinate[1]]])
+        returned_rows = []
+        if return_rows:
+            if horzontal_row_of_3:
+                returned_rows.append([
+                    [current_coordinate[0], 0],
+                    [current_coordinate[0], 1],
+                    [current_coordinate[0], 2]
+                ])
+            elif vertical_row_of_3:
+                returned_rows.append([
+                    [0, current_coordinate[1]],
+                    [1, current_coordinate[1]],
+                    [2, current_coordinate[1]]
+                ])
 
         # [[1, 0, 0],
         #  [0, 0, 0],
@@ -78,11 +102,15 @@ class TheAIProgram:
         # have to recreate the array going in the diagonal direction to pass into
         # the helper function
         if current_coordinate in [[0,0],[2,2]]:
-            return (horzontal_row_of_3 or vertical_row_of_3 or\
-                    self.all_the_same_values(current_player_number,\
-                                            [pieces_on_board[0][0],\
-                                             pieces_on_board[1][1],\
-                                             pieces_on_board[2][2]]))
+            diagonal = self.all_the_same_values(current_player_number,\
+                                                 [pieces_on_board[0][0],\
+                                                  pieces_on_board[1][1],\
+                                                  pieces_on_board[2][2]]) 
+            if not return_rows:
+                return (horzontal_row_of_3 or vertical_row_of_3 or diagonal)
+            else:
+                if diagonal:
+                    returned_rows.append([[0, 0], [1, 1], [2, 2]])
 
         # [[0, 0, 1],
         #  [0, 0, 0],
@@ -91,18 +119,23 @@ class TheAIProgram:
         # have to recreate the array going in the opposite diagonal to pass into
         # the helper function
         elif current_coordinate in [[0,2],[2,0]]:
-            return (horzontal_row_of_3 or vertical_row_of_3 or\
-                    self.all_the_same_values(current_player_number,\
-                                            [pieces_on_board[0][2],\
-                                             pieces_on_board[1][1],\
-                                             pieces_on_board[2][0]]))
+            diagonal = self.all_the_same_values(current_player_number,\
+                                               [pieces_on_board[0][2],\
+                                                pieces_on_board[1][1],\
+                                                pieces_on_board[2][0]])
+            if not return_rows:
+                return (horzontal_row_of_3 or vertical_row_of_3 or diagonal)
+            else:
+                if diagonal:
+                    returned_rows.append([[0, 2], [1, 1], [2, 0]])
 
         # [[0, 1, 0],
         #  [1, 0, 1],
         #  [0, 1, 0]]
         # Here we're in any of the spots where there's a one. So we only check vertically or horizontally.
         elif current_coordinate in [[0,1],[1,0],[1,2],[2,1]]:
-            return (horzontal_row_of_3 or vertical_row_of_3)
+            if not return_rows:
+                return (horzontal_row_of_3 or vertical_row_of_3)
 
         # [[0, 0, 0],
         #  [0, 1, 0],
@@ -110,17 +143,25 @@ class TheAIProgram:
         # Here the 1 represents current_coordinate on the board. Since we're in the middle,
         # we check 4 directions now.
         else:
-            # return (horzontal_row_of_3 or vertical_row_of_3 or\
-            #         (self.all_the_same_values(current_player_number,\
-            #                                  [pieces_on_board[0][0],\
-            #                                   pieces_on_board[1][1],\
-            #                                   pieces_on_board[2][2]])) or\
-            #         (self.all_the_same_values(current_player_number,\
-            #                                  [pieces_on_board[0][2],\
-            #                                   pieces_on_board[1][1],\
-            #                                   pieces_on_board[2][0]])))
-            return (horzontal_row_of_3 or vertical_row_of_3 or \
-                   (checker_utils.diagonals(pieces_on_board) == current_player_number)) 
+            diagonal = checker_utils.diagonals(pieces_on_board) == current_player_number
+            if not return_rows:
+                return (horzontal_row_of_3 or vertical_row_of_3 or diagonal)
+            else:
+                if diagonal:
+                    diagonal_1 = self.all_the_same_values(current_player_number,\
+                                                         [pieces_on_board[0][0],\
+                                                          pieces_on_board[1][1],\
+                                                          pieces_on_board[2][2]])
+                    diagonal_2 = self.all_the_same_values(current_player_number,\
+                                                         [pieces_on_board[0][2],\
+                                                          pieces_on_board[1][1],\
+                                                          pieces_on_board[2][0]])
+                if diagonal and diagonal_1:
+                    returned_rows.append([[0, 0], [1, 1], [2, 2]])
+                if diagonal and diagonal_2:
+                    returned_rows.append([[0, 2], [1, 1], [2, 0]])
+        if return_rows:
+            return returned_rows
 
 
     def blocked_row_of_2(self,current_player_number,\
@@ -297,7 +338,7 @@ class TheAIProgram:
             elif ((self.two_in_a_row(current_player_number,\
                                     [player_pieces_array[0][0],\
                                      player_pieces_array[1][1],\
-                                     player_pieces_array[2][2]])) and directions.get('diagonal')):
+                                     player_pieces_array[2][2]])) and directions.get('diagonal_1')):
                 return [[0,0],[1,1],[2,2]]
             else:
                 return []
@@ -316,7 +357,7 @@ class TheAIProgram:
             elif ((self.two_in_a_row(current_player_number,\
                                     [player_pieces_array[0][2],\
                                      player_pieces_array[1][1],\
-                                     player_pieces_array[2][0]])) and directions.get('diagonal')):
+                                     player_pieces_array[2][0]])) and directions.get('diagonal_2')):
                 return [[0,2],[1,1],[2,0]]
             else:
                 return []
@@ -334,12 +375,12 @@ class TheAIProgram:
             elif ((self.two_in_a_row(current_player_number,\
                                     [player_pieces_array[0][0],\
                                      player_pieces_array[1][1],\
-                                     player_pieces_array[2][2]])) and directions.get('diagonal')):
+                                     player_pieces_array[2][2]])) and directions.get('diagonal_1')):
                 return [[0,0],[1,1],[2,2]]
             elif ((self.two_in_a_row(current_player_number,\
                                     [player_pieces_array[0][2],\
                                      player_pieces_array[1][1],\
-                                     player_pieces_array[2][0]])) and directions.get('diagonal')):
+                                     player_pieces_array[2][0]])) and directions.get('diagonal_2')):
                 return [[0,2],[1,1],[2,0]]
             else:
                 return []
@@ -372,36 +413,92 @@ class TheAIProgram:
         first_set_of_2_in_a_row = self.fork_helper(current_player_number,\
                                                    current_coordinate,\
                                                    player_pieces_array,\
-                                                   self.directions)
+                                                   self.instance_directions)
         # The second set of 2 that is unblocked and hasn't been found already
         second_set_of_2 = []
         # If the first list returned from fork_helper was non empty then look for the second
         # list. Otherwise return false like the very bottom else case.
         if ((len(first_set_of_2_in_a_row)) != 0):
-            if first_set_of_2_in_a_row in [[[0,0],[1,1],[2,2]],[[0,2],[1,1],[2,0]]]:
+            if first_set_of_2_in_a_row == [[0,0],[1,1],[2,2]]:
                 # So if we found a diagonal row of 2, then we look through each coordinate
                 # in the row of 3 and find the next unblocked row of 2 with the diagonal
                 # direction switch turned off
-                self.directions['diagonal'] = False
-            elif ((first_set_of_2_in_a_row[0][0] == first_set_of_2_in_a_row[1][0]) and\
+                self.instance_directions.update({'diagonal_1': False})
+            elif first_set_of_2_in_a_row == [[0,2],[1,1],[2,0]]:
+                self.instance_directions.update({'diagonal_2': False})
+            elif ((first_set_of_2_in_a_row[0][0] == first_set_of_2_in_a_row[1][0]) and \
                   (first_set_of_2_in_a_row[1][0] == first_set_of_2_in_a_row[2][0])):
                 # If our set of 2 in a row was horizontal, turn off that direction,
                 # and look for the next unblocked row of 2.
-                self.directions['horizontal'] = False
+                self.instance_directions.update({'horizontal': False})
             else:
-                self.directions['vertical'] = False
+                self.instance_directions.update({'vertical': False})
             for i in (range(len(first_set_of_2_in_a_row))):
-                second_set_of_2 = self.fork_helper(current_player_number,\
-                                                    first_set_of_2_in_a_row[i],\
-                                                    player_pieces_array,\
-                                                    self.directions)
+                coordinate = first_set_of_2_in_a_row[i]
+                # If you have 2 pieces in a row that are unblocked, the third piece is 0.
+                # This means that for you to have 2 in a row here, in all directions
+                # where you have possibly 3 in a row, the other 2 pieces have to be filled
+                # with the same number. So you would have to spend 4 moves to get 2 unblocked
+                # rows of 2, and would have something like this:
+                # [
+                #  [1, 1, 0]
+                #  [0, 0, 1]
+                #  [0, 0, 1]
+                # ]
+                # A logical player that wants to win as fast as possible would not do this,
+                # as they could win by the 3rd move and definitely by the fourth move if no
+                # resistance was offered. So we don't have to compute the self.fork_helper
+                # for the 0 in the top right corner, as I can't logically think of a way
+                # that you would have a situation where the empty spot has 2 in a row in a
+                # different direction with only 3 pieces (the diagram above is done in 3
+                # moves)
+                if player_pieces_array[coordinate[0]][coordinate[1]]:
+                    second_set_of_2 = self.fork_helper(current_player_number,\
+                                                        coordinate,\
+                                                        player_pieces_array,\
+                                                        self.instance_directions)
                 # If we get here, we found a second unblocked row of 2 that is connected
                 # to our first row but isn't the first row. In this case
                 # we have a fork, otherwise return false
-                if ((len(second_set_of_2)) != 0):
+                if (len(second_set_of_2)):
                     return True
             return False
         return False
+
+    def find_optimal_move(self, player_pieces_array, player_num, other_num, fork_spots):
+        '''
+            In the event where blocking an opponent's chance for a fork is your best move, this function
+            gives you the optimal coordiate to block their fork, based the strategy to block an opponent's
+            fork here:
+            https://en.wikipedia.org/wiki/Tic-tac-toe#Strategy
+        '''
+        if len(fork_spots) == 1:
+            return [fork_spots[0], 5]
+        else:
+            coordinates_to_choose = []
+            for spot in self.instance_player_spots[player_num]:
+                player_pieces_array[spot[0]][spot[1]] = 0
+                rows_at_spot = self.three_in_a_row_at_this_spot(0, player_pieces_array, spot, return_rows=True)
+                fork_spots_on_row = 0
+                if rows_at_spot:
+                    for row in rows_at_spot:
+                        for coordinate in row:
+                            if not coordinate == spot and coordinate in fork_spots:
+                                if fork_spots_on_row >= 1:
+                                    fork_spots_on_row = 0
+                                    coordinates_to_choose = []
+                                    break
+                                fork_spots_on_row += 1
+                                coordinates_to_choose.append(coordinate)
+                        try:
+                            return [coordinates_to_choose[0], 6]
+                        except:
+                            for coordinate in row:
+                                if coordinate != spot:
+                                    return [coordinate, 6]
+                        fork_spots_on_row = 0
+                        coordinates_to_choose = []
+                player_pieces_array[spot[0]][spot[1]] = player_num
 
     def opposite_corner(self,current_coordinate,player_pieces_array,other_player_number):
         """
@@ -424,7 +521,7 @@ class TheAIProgram:
             return False
 
     def fork_for_them(self,current_coordinate,player_pieces_array,\
-                      player_number,other_player_number):
+                      player_number, other_player_number):
         """
             So this is what we use to determine if there would be a fork for the other side
             if they had chosen this spot. So if there is we should block it if we have
@@ -448,10 +545,10 @@ class TheAIProgram:
         # [[1, 0, 2],
         #  [0, 0, 0],
         #  [0, 0, 1]]
-        if (player_pieces_array[current_coordinate[0]][current_coordinate[1]] == other_player_number):
-            player_pieces_array[current_coordinate[0]][current_coordinate[1]] = player_number
-            fork_opposite = self.fork(current_coordinate,player_pieces_array,player_number)
+        if (player_pieces_array[current_coordinate[0]][current_coordinate[1]] == player_number):
             player_pieces_array[current_coordinate[0]][current_coordinate[1]] = other_player_number
+            fork_opposite = self.fork(current_coordinate,player_pieces_array,other_player_number)
+            player_pieces_array[current_coordinate[0]][current_coordinate[1]] = player_number
         return fork_opposite
 
     def static_evaluation(self,current_coordinate,player_pieces_array,player_number,\
@@ -466,19 +563,22 @@ class TheAIProgram:
         # So we exercise the above helper functions and assign the results to booleans.
         # The corresponding states will cause us to return a list with static evaluations
         # at that spots.
+        # import pdb; pdb.set_trace()
+        # if current_coordinate == [1, 1]:
+        #     import pdb; pdb.set_trace()
         win = self.three_in_a_row_at_this_spot(player_number,player_pieces_array,\
                                                current_coordinate)
         a_block = self.block(current_coordinate,player_pieces_array,player_number,\
                              other_player_number)
         forks = self.fork(current_coordinate,player_pieces_array,player_number)
         opposite_fork = self.fork_for_them(current_coordinate,player_pieces_array,\
-                                           other_player_number,player_number)
+                                           player_number, other_player_number)
         if win:
-            return [current_coordinate,8]
+            return [current_coordinate,9]
         elif a_block:
-            return [current_coordinate,7]
+            return [current_coordinate,8]
         elif forks:
-            return [current_coordinate,6]
+            return [current_coordinate,7]
         elif opposite_fork:
             return [current_coordinate,5]
         elif current_coordinate == [1,1]:
@@ -501,7 +601,7 @@ class TheAIProgram:
 
         if ((not (horizontal is None)) and (not(horizontal == 0))):
             return [False, horizontal]
-        elif ((not (vertical is None)) and (not(horizontal == 0))):
+        elif ((not (vertical is None)) and (not(vertical == 0))):
             return [False,vertical]
         elif ((not (diagonal is None)) and (not (diagonal == 0))):
             return [False,diagonal]
@@ -540,27 +640,25 @@ class TheAIProgram:
         win = self.no_wins(player_pieces_array)
         filled_up = checker_utils.all_filled_up(available_spots_on_the_board)
         evaluation = []
+        fork_spots = []
+
         if (((recursion_depth == 0) or (not win[0])) or filled_up):
             # Basically has someone won, or is the array filled, or is the depth at 0
-            if (not maximizing_player):
-                evaluation = self.static_evaluation(current_coordinate,\
-                                                    player_pieces_array,\
-                                                    other_player_number,\
-                                                    player_number)
-                # This line increases values of moves that win earlier, to where
-                # if we can find a way to win in 3 moves instead of 5 or 6, let's do
-                # that. This could be greater than 1 in the event that we have found
-                # a winning move, but the recursion level is not yet at 0.
-                evaluation[1] *= (recursion_depth + 1)
-                return evaluation
-            else:
-                evaluation = self.static_evaluation(current_coordinate,\
-                                                    player_pieces_array,\
-                                                    other_player_number,\
-                                                    player_number)
+            if not win[0] and win[1] == player_number:
+                evaluation = [current_coordinate, -9]
+            evaluation = self.static_evaluation(current_coordinate,\
+                                                player_pieces_array,\
+                                                other_player_number,\
+                                                player_number)
+            # This line increases values of moves that win earlier, to where
+            # if we can find a way to win in 3 moves instead of 5 or 6, let's do
+            # that. This could be greater than 1 in the event that we have found
+            # a winning move, but the recursion level is not yet at 0.
+            evaluation[1] *= (recursion_depth + 1)
+            if maximizing_player:
                 # The same thing happens in the opposite direction
-                evaluation[1] *= ((-1) * (recursion_depth + 1))
-                return evaluation
+                evaluation[1] *= -1
+            return evaluation
 
         # We check to see if the spot's empty and we put the number in, and get its evaluation
         if maximizing_player:
@@ -578,6 +676,7 @@ class TheAIProgram:
                         # remaining spots. Return the maximum evaluation coordinate accordingly.
                         player_pieces_array[i][j] = player_number
                         available_spots_on_the_board[i][j] = False
+                        self.instance_player_spots[player_number].append([i, j])
                         evaluation = self.minimax(recursion_depth - 1,\
                                                   player_pieces_array,\
                                                   False,\
@@ -585,11 +684,18 @@ class TheAIProgram:
                                                   player_number,\
                                                   [i,j],\
                                                   available_spots_on_the_board)
+                        if recursion_depth == 1 and abs(evaluation[1]) == 5:
+                            fork_spots.append(evaluation[0])
                         if (evaluation[1] > max_eval):
                             max_evaluation = [[i,j],evaluation[1]]
                         max_eval = max(max_eval,evaluation[1])
                         player_pieces_array[i][j] = 0
                         available_spots_on_the_board[i][j] = True
+                        self.instance_player_spots[player_number].pop()
+            if recursion_depth == 1 and abs(max_evaluation[1]) == 5 and len(fork_spots) > 1:
+                max_evaluation = self.find_optimal_move(
+                    player_pieces_array, player_number, other_player_number, fork_spots
+                )
             return max_evaluation
 
         # Else if it's not the maximizing player's turn, we see if it's empty and put in the other number
@@ -600,6 +706,7 @@ class TheAIProgram:
                     if (player_pieces_array[i][j] == 0):
                         player_pieces_array[i][j] = player_number
                         available_spots_on_the_board[i][j] = False
+                        self.instance_player_spots[player_number].append([i, j])
                         evaluation = self.minimax(recursion_depth - 1,\
                                                   player_pieces_array,\
                                                   True,\
@@ -607,9 +714,17 @@ class TheAIProgram:
                                                   player_number,\
                                                   [i,j],\
                                                   available_spots_on_the_board)
+                        if recursion_depth == 1 and abs(evaluation[1]) == 5:
+                            fork_spots.append(evaluation[0])
                         if (evaluation[1] < min_eval):
                             min_evaluation = [[i,j],evaluation[1]]
                         min_eval = min(min_eval,evaluation[1])
                         player_pieces_array[i][j] = 0
                         available_spots_on_the_board[i][j] = True
+                        self.instance_player_spots[player_number].pop()
+            if recursion_depth == 1 and abs(min_evaluation[1]) == 5 and len(fork_spots) > 1:
+                min_evaluation = self.find_optimal_move(
+                    player_pieces_array, player_number, other_player_number, fork_spots
+                )
+                min_evaluation[1] *= -1
             return min_evaluation

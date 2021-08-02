@@ -119,6 +119,7 @@ class SinglePlayer:
                                                                      game_tracking_variable_object.instance_current_status_of_board_pieces,\
                                                                      True,1,2,[0,0],\
                                                                      game_tracking_variable_object.instance_array_of_available_spots)
+            # print(difficulty, coordinates)
             # Flip the switch of which character is going to be filled. Change the
             # game state based on the coordinates returned, check to see if anybody won
             # or if the board is full. If any of those things happened, react accordingly.
@@ -205,8 +206,9 @@ class SinglePlayer:
                                             input_object,print_object, game_tracking_variable_object)
             return result
         else:
+            # Easy
             if (difficulty == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Hard']):
-                result = self.computer_goes_first(name,game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Easy'],\
+                result = self.computer_goes_first(name,game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Hard'],\
                                                   artificial_intelligence_object,\
                                                   input_object,print_object,\
                                                   game_tracking_variable_object)
@@ -218,7 +220,7 @@ class SinglePlayer:
                                                   game_tracking_variable_object)
                 return result
             else:
-                result = self.computer_goes_first(name,4,\
+                result = self.computer_goes_first(name,2,\
                                                   artificial_intelligence_object,\
                                                   input_object,print_object,\
                                                   game_tracking_variable_object)
