@@ -49,17 +49,23 @@ class SinglePlayer:
                 return [name,difficulty,False,False,True]
                 break
             # We play as the result character that wants to maximize its score here
+            alpha = sys.maxsize * -1
+            beta = sys.maxsize
             if (game_tracking_variable_object.instance_turn_of_x_char_or_not):
                 coordinates = artificial_intelligence_object.minimax(difficulty,\
                                                                      game_tracking_variable_object.instance_current_status_of_board_pieces,\
                                                                      True,2,1,[0,0],\
-                                                                     game_tracking_variable_object.instance_array_of_available_spots)
+                                                                     game_tracking_variable_object.instance_array_of_available_spots,
+                                                                     alpha=alpha,
+                                                                     beta=beta)
             # Here we play as the y character that want to minimize its score
             else:
                 coordinates = artificial_intelligence_object.minimax(difficulty,\
                                                                      game_tracking_variable_object.instance_current_status_of_board_pieces,\
                                                                      True,1,2,[0,0],\
-                                                                     game_tracking_variable_object.instance_array_of_available_spots)
+                                                                     game_tracking_variable_object.instance_array_of_available_spots,
+                                                                     alpha=alpha,
+                                                                     beta=beta)
             # Switch the boolean representing who's turn it is, for the next iteration
             game_tracking_variable_object.instance_turn_of_x_char_or_not = not(game_tracking_variable_object.instance_turn_of_x_char_or_not)
             # Change the state of the game now that the minimax function chose the right
@@ -109,16 +115,22 @@ class SinglePlayer:
         while nobody_has_won[0]:
             # Based on who's result and who's o, the computer then plays as the according
             # character and thus that number.
+            alpha = sys.maxsize * -1
+            beta = sys.maxsize
             if (game_tracking_variable_object.instance_turn_of_x_char_or_not):
                 coordinates = artificial_intelligence_object.minimax(difficulty,\
                                                                      game_tracking_variable_object.instance_current_status_of_board_pieces,\
                                                                      True,2,1,[0,0],\
-                                                                     game_tracking_variable_object.instance_array_of_available_spots)
+                                                                     game_tracking_variable_object.instance_array_of_available_spots,
+                                                                     alpha=alpha,
+                                                                     beta=beta)
             else:
                 coordinates = artificial_intelligence_object.minimax(difficulty,\
                                                                      game_tracking_variable_object.instance_current_status_of_board_pieces,\
                                                                      True,1,2,[0,0],\
-                                                                     game_tracking_variable_object.instance_array_of_available_spots)
+                                                                     game_tracking_variable_object.instance_array_of_available_spots,
+                                                                     alpha=alpha,
+                                                                     beta=beta)
             # print(difficulty, coordinates)
             # Flip the switch of which character is going to be filled. Change the
             # game state based on the coordinates returned, check to see if anybody won

@@ -1,4 +1,5 @@
-from pdb import set_trace
+# from pdb import set_trace
+import pdb
 import game_tracking_variables
 from utils import checker_utils
 import sys
@@ -452,7 +453,7 @@ class TheAIProgram:
                 # that you would have a situation where the empty spot has 2 in a row in a
                 # different direction with only 3 pieces (the diagram above is done in 3
                 # moves)
-                if player_pieces_array[coordinate[0]][coordinate[1]]:
+                if player_pieces_array[coordinate[0]][coordinate[1]] != 0:
                     second_set_of_2 = self.fork_helper(current_player_number,\
                                                         coordinate,\
                                                         player_pieces_array,\
@@ -472,9 +473,7 @@ class TheAIProgram:
             fork here:
             https://en.wikipedia.org/wiki/Tic-tac-toe#Strategy
         '''
-        if len(fork_spots) == 1:
-            return [fork_spots[0], 5]
-        else:
+        if len(fork_spots) > 1:
             coordinates_to_choose = []
             for spot in self.instance_player_spots[player_num]:
                 player_pieces_array[spot[0]][spot[1]] = 0
@@ -491,14 +490,17 @@ class TheAIProgram:
                                 fork_spots_on_row += 1
                                 coordinates_to_choose.append(coordinate)
                         try:
+                            player_pieces_array[spot[0]][spot[1]] = player_num
                             return [coordinates_to_choose[0], 6]
                         except:
                             for coordinate in row:
                                 if coordinate != spot:
+                                    player_pieces_array[spot[0]][spot[1]] = player_num
                                     return [coordinate, 6]
                         fork_spots_on_row = 0
                         coordinates_to_choose = []
                 player_pieces_array[spot[0]][spot[1]] = player_num
+        return [fork_spots[0], 5]
 
     def opposite_corner(self,current_coordinate,player_pieces_array,other_player_number):
         """
@@ -610,7 +612,7 @@ class TheAIProgram:
 
 
     def minimax(self,recursion_depth,player_pieces_array,maximizing_player,player_number,\
-                other_player_number,current_coordinate,available_spots_on_the_board):
+                other_player_number,current_coordinate,available_spots_on_the_board, alpha=None, beta=None):
         """
             This is my implementation of the minimax algorithm. Type 'minimax algorithm'
             in YouTube/Google for more information. There's some helpful info on YouTube on
@@ -641,6 +643,7 @@ class TheAIProgram:
         filled_up = checker_utils.all_filled_up(available_spots_on_the_board)
         evaluation = []
         fork_spots = []
+        # pdb.set_trace()
 
         if (((recursion_depth == 0) or (not win[0])) or filled_up):
             # Basically has someone won, or is the array filled, or is the depth at 0
@@ -683,7 +686,9 @@ class TheAIProgram:
                                                   other_player_number,\
                                                   player_number,\
                                                   [i,j],\
-                                                  available_spots_on_the_board)
+                                                  available_spots_on_the_board,
+                                                  alpha=alpha,
+                                                  beta=beta)
                         if recursion_depth == 1 and abs(evaluation[1]) == 5:
                             fork_spots.append(evaluation[0])
                         if (evaluation[1] > max_eval):
@@ -692,6 +697,10 @@ class TheAIProgram:
                         player_pieces_array[i][j] = 0
                         available_spots_on_the_board[i][j] = True
                         self.instance_player_spots[player_number].pop()
+                        if bool(alpha) and bool(beta):
+                            alpha = max(alpha, evaluation[1])
+                            if beta <= alpha:
+                                break
             if recursion_depth == 1 and abs(max_evaluation[1]) == 5 and len(fork_spots) > 1:
                 max_evaluation = self.find_optimal_move(
                     player_pieces_array, player_number, other_player_number, fork_spots
@@ -713,7 +722,9 @@ class TheAIProgram:
                                                   other_player_number,\
                                                   player_number,\
                                                   [i,j],\
-                                                  available_spots_on_the_board)
+                                                  available_spots_on_the_board,
+                                                  alpha=alpha,
+                                                  beta=beta)
                         if recursion_depth == 1 and abs(evaluation[1]) == 5:
                             fork_spots.append(evaluation[0])
                         if (evaluation[1] < min_eval):
@@ -722,6 +733,10 @@ class TheAIProgram:
                         player_pieces_array[i][j] = 0
                         available_spots_on_the_board[i][j] = True
                         self.instance_player_spots[player_number].pop()
+                        if bool(alpha) and bool(beta):
+                            beta = min(beta, evaluation[1])
+                            if beta <= alpha:
+                                break
             if recursion_depth == 1 and abs(min_evaluation[1]) == 5 and len(fork_spots) > 1:
                 min_evaluation = self.find_optimal_move(
                     player_pieces_array, player_number, other_player_number, fork_spots
