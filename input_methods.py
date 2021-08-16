@@ -1,4 +1,6 @@
 import game_tracking_variables
+
+
 class InputFunctions:
     """
         This class is for functions that read in data from the user.

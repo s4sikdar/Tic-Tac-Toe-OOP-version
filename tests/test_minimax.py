@@ -37,9 +37,6 @@ class TestAI(unittest.TestCase):
             https://en.wikipedia.org/wiki/Tic-tac-toe#Strategy
             We return the result accordingly.
         """
-        # So we exercise the above helper functions and assign the results to booleans.
-        # The corresponding states will cause us to return a list with static evaluations
-        # at that spots.
         win = self.instance_ai_prog.three_in_a_row_at_this_spot(player_number,player_pieces_array,\
                                                                 current_coordinate)
         a_block = self.instance_ai_prog.block(current_coordinate,player_pieces_array,player_number,\

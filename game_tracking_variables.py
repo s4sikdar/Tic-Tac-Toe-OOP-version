@@ -93,6 +93,11 @@ class GameVariables:
         # used when we choose single or multiplayer mode
         # Name: Player_Options
         self.instance_single_or_multiplayer  = ['s','m']
+        self.instance_random_move_thresholds = {
+            'easy': 5,
+            'medium': 2,
+            'hard': 0
+        }
 
     def reset_the_board(self):
         """

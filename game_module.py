@@ -1,5 +1,6 @@
 from artificial_intelligence import TheAIProgram
 import sys
+import random
 from utils import checker_utils
 from input_methods import InputFunctions
 from print_methods import PrintFunctions
@@ -9,8 +10,72 @@ class SinglePlayer:
     """
         This class is the implementation of single player Tic Tac Toe.
     """
+    def find_random_move(self, game_tracking_vars):
+        y_coord = random.randint(0, (len(game_tracking_vars.instance_array_of_available_spots) - 1))
+        row_in_question = game_tracking_vars.instance_array_of_available_spots[y_coord]
+        all_filled = checker_utils.all_3_equal(row_in_question) and not row_in_question[0]
+        while all_filled:
+            y_coord = random.randint(0, (len(game_tracking_vars.instance_array_of_available_spots) - 1))
+            row_in_question = game_tracking_vars.instance_array_of_available_spots[y_coord]
+            all_filled = checker_utils.all_3_equal(row_in_question) and not row_in_question[0]
+        x_coord = random.randint(0, (len(game_tracking_vars.instance_array_of_available_spots) - 1))
+        while not game_tracking_vars.instance_array_of_available_spots[y_coord][x_coord]:
+            x_coord = random.randint(0, (len(game_tracking_vars.instance_array_of_available_spots) - 1))
 
-    def person_goes_first(self,name,difficulty,artificial_intelligence_object,\
+        return [y_coord, x_coord]
+
+    def find_move(self, game_tracking_vars, difficulty, difficulty_level, ai_object):
+        threshold_level = game_tracking_vars.instance_random_move_thresholds[difficulty]
+        if threshold_level <= 0:
+            alpha = sys.maxsize * -1
+            beta = sys.maxsize
+            if game_tracking_vars.instance_turn_of_x_char_or_not:
+                coordinate = ai_object.minimax(
+                    7,\
+                    game_tracking_vars.instance_current_status_of_board_pieces,\
+                    True,2,1,[0,0],\
+                    game_tracking_vars.instance_array_of_available_spots,
+                    alpha=alpha,
+                    beta=beta
+                )
+            else:
+                coordinate = ai_object.minimax(
+                    7,\
+                    game_tracking_vars.instance_current_status_of_board_pieces,\
+                    True,1,2,[0,0],\
+                    game_tracking_vars.instance_array_of_available_spots,
+                    alpha=alpha,
+                    beta=beta
+                )
+            return coordinate[0]
+        else:
+            number = random.randint(1, 10)
+            if number <= threshold_level:
+                return self.find_random_move(game_tracking_vars)
+            else:
+                alpha = sys.maxsize * -1
+                beta = sys.maxsize
+                if game_tracking_vars.instance_turn_of_x_char_or_not:
+                    coordinate = ai_object.minimax(
+                        7,\
+                        game_tracking_vars.instance_current_status_of_board_pieces,\
+                        True,2,1,[0,0],\
+                        game_tracking_vars.instance_array_of_available_spots,
+                        alpha=alpha,
+                        beta=beta
+                    )
+                else:
+                    coordinate = ai_object.minimax(
+                        7,\
+                        game_tracking_vars.instance_current_status_of_board_pieces,\
+                        True,1,2,[0,0],\
+                        game_tracking_vars.instance_array_of_available_spots,
+                        alpha=alpha,
+                        beta=beta
+                    )
+                return coordinate[0]
+
+    def person_goes_first(self,name,difficulty, difficulty_level, artificial_intelligence_object,\
                           input_object,print_object,game_tracking_variable_object):
         """
             This function carries out the game when the individual opts to go first against
@@ -39,40 +104,44 @@ class SinglePlayer:
                     print('X wins')
                 else:
                     print('O wins')
-                return [name,difficulty,True,False,False]
+                return [name,difficulty_level,True,False,False]
                 break
             # If nobody won, print the board and print that nobody won, then return
             # the result.
             if (nobody_wins):
                 print_object.print_board(game_tracking_variable_object)
                 print('Nobody wins.')
-                return [name,difficulty,False,False,True]
+                return [name,difficulty_level,False,False,True]
                 break
             # We play as the result character that wants to maximize its score here
-            alpha = sys.maxsize * -1
-            beta = sys.maxsize
-            if (game_tracking_variable_object.instance_turn_of_x_char_or_not):
-                coordinates = artificial_intelligence_object.minimax(difficulty,\
-                                                                     game_tracking_variable_object.instance_current_status_of_board_pieces,\
-                                                                     True,2,1,[0,0],\
-                                                                     game_tracking_variable_object.instance_array_of_available_spots,
-                                                                     alpha=alpha,
-                                                                     beta=beta)
-            # Here we play as the y character that want to minimize its score
-            else:
-                coordinates = artificial_intelligence_object.minimax(difficulty,\
-                                                                     game_tracking_variable_object.instance_current_status_of_board_pieces,\
-                                                                     True,1,2,[0,0],\
-                                                                     game_tracking_variable_object.instance_array_of_available_spots,
-                                                                     alpha=alpha,
-                                                                     beta=beta)
+            # alpha = sys.maxsize * -1
+            # beta = sys.maxsize
+            # if (game_tracking_variable_object.instance_turn_of_x_char_or_not):
+            #     coordinates = artificial_intelligence_object.minimax(difficulty_level,\
+            #                                                          game_tracking_variable_object.instance_current_status_of_board_pieces,\
+            #                                                          True,2,1,[0,0],\
+            #                                                          game_tracking_variable_object.instance_array_of_available_spots,
+            #                                                          alpha=alpha,
+            #                                                          beta=beta)
+            # # Here we play as the y character that want to minimize its score
+            # else:
+            #     coordinates = artificial_intelligence_object.minimax(difficulty_level,\
+            #                                                          game_tracking_variable_object.instance_current_status_of_board_pieces,\
+            #                                                          True,1,2,[0,0],\
+            #                                                          game_tracking_variable_object.instance_array_of_available_spots,
+            #                                                          alpha=alpha,
+            #                                                          beta=beta)
+            coordinates = self.find_move(
+                game_tracking_variable_object, difficulty,
+                difficulty_level, artificial_intelligence_object
+            )
             # Switch the boolean representing who's turn it is, for the next iteration
             game_tracking_variable_object.instance_turn_of_x_char_or_not = not(game_tracking_variable_object.instance_turn_of_x_char_or_not)
             # Change the state of the game now that the minimax function chose the right
             # coordinates
             print_object.change_game_state(game_tracking_variable_object,\
-                                           [game_tracking_variable_object.instance_number_legend.get(int(coordinates[0][0])),\
-                                            (coordinates[0][1] + 1)])
+                                           [game_tracking_variable_object.instance_number_legend.get(int(coordinates[0])),\
+                                            (coordinates[1] + 1)])
             # Now check that nobody won, and that the array is not filled up.
             nobody_has_won = artificial_intelligence_object.no_wins(game_tracking_variable_object.instance_current_status_of_board_pieces)
             all_filled = checker_utils.all_filled_up(game_tracking_variable_object.instance_array_of_available_spots)
@@ -85,12 +154,12 @@ class SinglePlayer:
                     print('X wins')
                 else:
                     print('O wins')
-                return [name,difficulty,False,True,False]
+                return [name,difficulty_level,False,True,False]
                 break
             if (nobody_wins):
                 print_object.print_board(game_tracking_variable_object)
                 print('Nobody wins.')
-                return [name,difficulty,False,False,True]
+                return [name,difficulty_level,False,False,True]
                 break
             game_tracking_variable_object.instance_turn_of_x_char_or_not = not(game_tracking_variable_object.instance_turn_of_x_char_or_not)
 
@@ -100,7 +169,7 @@ class SinglePlayer:
     # goes second. When it goes first, it works more so as to how it should with the
     # layers of recursion, except it seems easier to beat on medium than easy mode,
     # so I gave the "medium" layer of recursion when in easy mode.
-    def computer_goes_first(self,name,difficulty,artificial_intelligence_object,\
+    def computer_goes_first(self,name,difficulty, difficulty_level, artificial_intelligence_object,\
                             input_object,print_object,game_tracking_variable_object):
         """
             This function carries out the game when the individual opts to let the
@@ -115,30 +184,34 @@ class SinglePlayer:
         while nobody_has_won[0]:
             # Based on who's result and who's o, the computer then plays as the according
             # character and thus that number.
-            alpha = sys.maxsize * -1
-            beta = sys.maxsize
-            if (game_tracking_variable_object.instance_turn_of_x_char_or_not):
-                coordinates = artificial_intelligence_object.minimax(difficulty,\
-                                                                     game_tracking_variable_object.instance_current_status_of_board_pieces,\
-                                                                     True,2,1,[0,0],\
-                                                                     game_tracking_variable_object.instance_array_of_available_spots,
-                                                                     alpha=alpha,
-                                                                     beta=beta)
-            else:
-                coordinates = artificial_intelligence_object.minimax(difficulty,\
-                                                                     game_tracking_variable_object.instance_current_status_of_board_pieces,\
-                                                                     True,1,2,[0,0],\
-                                                                     game_tracking_variable_object.instance_array_of_available_spots,
-                                                                     alpha=alpha,
-                                                                     beta=beta)
-            # print(difficulty, coordinates)
+            # alpha = sys.maxsize * -1
+            # beta = sys.maxsize
+            # if (game_tracking_variable_object.instance_turn_of_x_char_or_not):
+            #     coordinates = artificial_intelligence_object.minimax(difficulty_level,\
+            #                                                          game_tracking_variable_object.instance_current_status_of_board_pieces,\
+            #                                                          True,2,1,[0,0],\
+            #                                                          game_tracking_variable_object.instance_array_of_available_spots,
+            #                                                          alpha=alpha,
+            #                                                          beta=beta)
+            # else:
+            #     coordinates = artificial_intelligence_object.minimax(difficulty_level,\
+            #                                                          game_tracking_variable_object.instance_current_status_of_board_pieces,\
+            #                                                          True,1,2,[0,0],\
+            #                                                          game_tracking_variable_object.instance_array_of_available_spots,
+            #                                                          alpha=alpha,
+            #                                                          beta=beta)
+            # import pdb;pdb.set_trace()
+            coordinates = self.find_move(
+                game_tracking_variable_object, difficulty,
+                difficulty_level, artificial_intelligence_object
+            )
             # Flip the switch of which character is going to be filled. Change the
             # game state based on the coordinates returned, check to see if anybody won
             # or if the board is full. If any of those things happened, react accordingly.
             game_tracking_variable_object.instance_turn_of_x_char_or_not = not(game_tracking_variable_object.instance_turn_of_x_char_or_not)
             print_object.change_game_state(game_tracking_variable_object,\
-                                           [game_tracking_variable_object.instance_number_legend.get(int(coordinates[0][0])),\
-                                            (coordinates[0][1] + 1)])
+                                           [game_tracking_variable_object.instance_number_legend.get(int(coordinates[0])),\
+                                            (coordinates[1] + 1)])
             nobody_has_won = artificial_intelligence_object.no_wins(game_tracking_variable_object.instance_current_status_of_board_pieces)
             all_filled = checker_utils.all_filled_up(game_tracking_variable_object.instance_array_of_available_spots)
             nobody_wins = ((nobody_has_won[0]) and all_filled)
@@ -148,9 +221,9 @@ class SinglePlayer:
                     print('X wins')
                 else:
                     print('O wins')
-                if (difficulty == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Easy']):
+                if (difficulty_level == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Easy']):
                     return [name,game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Hard'],False,True,False]
-                elif (difficulty == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Medium']):
+                elif (difficulty_level == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Medium']):
                     return [name,game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Easy'],False,True,False]
                 else:
                     return [name,game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Medium'],False,True,False]
@@ -158,9 +231,9 @@ class SinglePlayer:
             if (nobody_wins):
                 print_object.print_board(game_tracking_variable_object)
                 print('Nobody wins.')
-                if (difficulty == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Easy']):
+                if (difficulty_level == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Easy']):
                     return [name,game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Hard'],False,False,True]
-                elif (difficulty == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Medium']):
+                elif (difficulty_level == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Medium']):
                     return [name,game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Easy'],False,False,True]
                 else:
                     return [name,game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Medium'],False,False,True]
@@ -182,9 +255,9 @@ class SinglePlayer:
                     print('X wins')
                 else:
                     print('O wins')
-                if (difficulty == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Easy']):
+                if (difficulty_level == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Easy']):
                     return [name,game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Hard'],True,False,False]
-                elif (difficulty == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Medium']):
+                elif (difficulty_level == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Medium']):
                     return [name,game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Easy'],True,False,False]
                 else:
                     return [name,game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Medium'],True,False,False]
@@ -192,9 +265,9 @@ class SinglePlayer:
             if (nobody_wins):
                 print_object.print_board(game_tracking_variable_object)
                 print('Nobody wins.')
-                if (difficulty == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Easy']):
+                if (difficulty_level == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Easy']):
                     return [name,game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Hard'],False,False,True]
-                elif (difficulty == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Medium']):
+                elif (difficulty_level == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Medium']):
                     return [name,game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Easy'],False,False,True]
                 else:
                     return [name,game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Medium'],True,False,False]
@@ -202,7 +275,7 @@ class SinglePlayer:
 
 
     # This is the full single player version against the computer
-    def run_single_player(self,name,difficulty,artificial_intelligence_object,\
+    def run_single_player(self,name,difficulty, difficulty_level, artificial_intelligence_object,\
                           input_object,print_object,game_tracking_variable_object):
         """
             This function carries out the single-player version of the game.
@@ -214,25 +287,25 @@ class SinglePlayer:
             in_put = input("Invalid input. Enter '1' to go first, enter '2' for the computer to go first: ")
 
         if ((in_put.casefold()) == '1'):
-            result = self.person_goes_first(name,difficulty,artificial_intelligence_object,\
+            result = self.person_goes_first(name,difficulty, difficulty_level,artificial_intelligence_object,\
                                             input_object,print_object, game_tracking_variable_object)
             return result
         else:
             # Easy
-            if (difficulty == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Hard']):
-                result = self.computer_goes_first(name,game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Hard'],\
+            if (difficulty_level == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Hard']):
+                result = self.computer_goes_first(name, difficulty, game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Hard'],\
                                                   artificial_intelligence_object,\
                                                   input_object,print_object,\
                                                   game_tracking_variable_object)
                 return result
-            elif (difficulty == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Easy']):
-                result = self.computer_goes_first(name,game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Medium'],\
+            elif (difficulty_level == game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Easy']):
+                result = self.computer_goes_first(name, difficulty, game_tracking_variable_object.instance_translate_difficulty_to_recursion_levels['Medium'],\
                                                   artificial_intelligence_object,\
                                                   input_object,print_object,\
                                                   game_tracking_variable_object)
                 return result
             else:
-                result = self.computer_goes_first(name,2,\
+                result = self.computer_goes_first(name, difficulty, 2,\
                                                   artificial_intelligence_object,\
                                                   input_object,print_object,\
                                                   game_tracking_variable_object)

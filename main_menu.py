@@ -21,12 +21,20 @@ class MainMenuClass:
         string_input = input('Enter a level of difficulty. Enter either \'Easy\', \'Medium\', or \'Hard\':')
         while (not((string_input.casefold()) in game_tracking_var_object.instance_valid_difficulty_inputs)):
             string_input = input('Invalid input. Enter either \'Easy\', \'Medium\', or \'Hard\':')
+        difficulty_level = [string_input.casefold()]
         if ((string_input.casefold()) == game_tracking_var_object.instance_valid_difficulty_inputs[0]):
-            return game_tracking_var_object.instance_translate_difficulty_to_recursion_levels['Easy']
+            difficulty_level.append(
+                game_tracking_var_object.instance_translate_difficulty_to_recursion_levels['Easy']
+            )
         elif ((string_input.casefold()) == game_tracking_var_object.instance_valid_difficulty_inputs[1]):
-            return game_tracking_var_object.instance_translate_difficulty_to_recursion_levels['Medium']
+            difficulty_level.append(
+                game_tracking_var_object.instance_translate_difficulty_to_recursion_levels['Medium']
+            )
         else:
-            return game_tracking_var_object.instance_translate_difficulty_to_recursion_levels['Hard']
+            difficulty_level.append(
+                game_tracking_var_object.instance_translate_difficulty_to_recursion_levels['Hard']
+            )
+        return difficulty_level
 
     def select_player_option(self,game_tracking_var_object,file_and_database,\
                              single_player_object,multiplayer_game,ai_object,\
@@ -56,7 +64,7 @@ class MainMenuClass:
                 First_name = file_and_database.instance_players_signed_in[0],\
                 Second_name = file_and_database.instance_players_signed_in[1]))
                 difficulty = self.select_difficulty(game_tracking_var_object)
-                result = single_player_object.run_single_player(string_input,difficulty,\
+                result = single_player_object.run_single_player(string_input,difficulty[0], difficulty[1],\
                                                                 ai_object,\
                                                                 input_method_object,\
                                                                 print_method_object,\
@@ -73,7 +81,7 @@ class MainMenuClass:
                 difficulty = self.select_difficulty(game_tracking_var_object)
                 result = single_player_object.run_single_player(\
                 file_and_database.instance_players_signed_in[name_index],\
-                difficulty,ai_object,input_method_object,\
+                difficulty[0], difficulty[1], ai_object,input_method_object,\
                 print_method_object,game_tracking_var_object)
                 file_and_database.result_score_single_player(result[0],result[1],\
                                                              result[2],result[3],\
@@ -83,7 +91,7 @@ class MainMenuClass:
             else:
                 print('You will be signed in as nobody.')
                 difficulty = self.select_difficulty(game_tracking_var_object)
-                result = single_player_object.run_single_player(None,difficulty,ai_object,\
+                result = single_player_object.run_single_player(None,difficulty[0], difficulty[1], ai_object,\
                                                                 input_method_object,\
                                                                 print_method_object,\
                                                                 game_tracking_var_object)
