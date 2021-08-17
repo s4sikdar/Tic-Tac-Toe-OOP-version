@@ -664,13 +664,13 @@ has already been signed in. Enter a different name.\n')
             # Extra conditionals to make sure that we don't search for
             # something after it has already been found
             if (not name_not_deleted):
-                if ((entry[1].casefold()) ==\
-                    (self.instance_players_signed_in[0].casefold())):
+                if ((isinstance(self.instance_players_signed_in[0], str)) and \
+                    ((entry[1].casefold()) == (self.instance_players_signed_in[0].casefold()))):
                     name_not_deleted = True
                     self.instance_players_signed_in[0] = None
             if (not second_name_not_deleted):
-                if ((entry[1].casefold()) ==\
-                    (self.instance_players_signed_in[1].casefold())):
+                if ((isinstance(self.instance_players_signed_in[1], str)) and \
+                    ((entry[1].casefold()) == (self.instance_players_signed_in[1].casefold()))):
                     second_name_not_deleted = True
                     self.instance_players_signed_in[1] = None
             if (name_not_deleted and second_name_not_deleted):
@@ -734,13 +734,13 @@ has already been signed in. Enter a different name.\n')
             # Extra conditionals to make sure that we don't search for
             # something after it has already been found
             if (not name_not_deleted):
-                if ((entry[1].casefold()) ==\
-                    (self.instance_players_signed_in[0].casefold())):
+                if ((isinstance(self.instance_players_signed_in[0], str)) and \
+                    ((entry[1].casefold()) == (self.instance_players_signed_in[0].casefold()))):
                     name_not_deleted = True
                     self.instance_players_signed_in[0] = None
             if (not second_name_not_deleted):
-                if ((entry[1].casefold()) ==\
-                    (self.instance_players_signed_in[1].casefold())):
+                if ((isinstance(self.instance_players_signed_in[0], str)) and \
+                    ((entry[1].casefold()) == (self.instance_players_signed_in[1].casefold()))):
                     second_name_not_deleted = True
                     self.instance_players_signed_in[1] = None
             if (name_not_deleted and second_name_not_deleted):
