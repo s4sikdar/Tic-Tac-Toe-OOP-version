@@ -70,8 +70,8 @@ class InputFunctions:
             This determines who starts first, based on your input, as well as
             determines which piece you will be if you choose to play against the computer.
         """
-        # Based on the mode, prompt the user for input to decide what player they want to be:
-        # X or O? Prompt input from them till it's correct.
+        # Based on the mode, prompt the user for input on whether they want to be X or O, or prompt
+        # the users on multiplayer mode whether they want X to start of O to start.
         player_1_or_2 = None
         player_start_options = ['1', '2']
         if (multi_player):

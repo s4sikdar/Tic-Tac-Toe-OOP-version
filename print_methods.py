@@ -6,9 +6,6 @@ class PrintFunctions:
         they only print out values, and do not interact with our user - not input
         functions.
     """
-    #def __init__(self,Variable_object):
-    #    pass
-    # No need for an __init__ constructor since there's no variables to declare.
     def print_board(self,game_variable_object):
         """
             This function prints the output of the board to the screen.
@@ -22,7 +19,6 @@ class PrintFunctions:
             print(print_string)
             print_string = ''
 
-    # Name: Find_Y
     def find_the_y_coordinate(self,y_coordinate,game_variable_object):
         """
             We use the first part of our coordinate (that represents the y coordinate)

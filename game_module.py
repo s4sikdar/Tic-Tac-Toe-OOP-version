@@ -11,6 +11,17 @@ class SinglePlayer:
         This class is the implementation of single player Tic Tac Toe.
     """
     def find_random_move(self, game_tracking_vars):
+        '''
+            Responsible for randomly finding a spot on the board when the computer opts for
+            a randomly chosen move.
+        '''
+        # To find a random move, draw a random integer rnum such that 
+        # 0 <= rnum <= (len(game_tracking_vars.instance_array_of_available_spots) - 1).
+        # This makes it such that rnum is a valid index value to access a row in the
+        # board. Check if the row is all filled, and if it is keep repeating
+        # this process till you find a row that has an empty spot. Then do the same, but on
+        # the indices for spots inside the row. You will end up with an empty spot chosen
+        # randomly, unless you have a board that is all filled.
         y_coord = random.randint(0, (len(game_tracking_vars.instance_array_of_available_spots) - 1))
         row_in_question = game_tracking_vars.instance_array_of_available_spots[y_coord]
         all_filled = checker_utils.all_3_equal(row_in_question) and not row_in_question[0]
@@ -25,9 +36,27 @@ class SinglePlayer:
         return [y_coord, x_coord]
 
     def find_move(self, game_tracking_vars, difficulty, difficulty_level, ai_object, comp_goes_first):
+        '''
+            Responsible for finding a move to make when on single player mode. The move could
+            be random, or a result of the minimax algorithm, but it depends on the difficulty
+            level.
+        '''
+        # We generate a random number num where both 1 <= num <= 10 and 1 <= threshold_level <= 10
+        # and if num <= threshold_level then use find_random_move to get a random move. Otherwise
+        # use the minimax algorithm for a move. If you are playing on hard mode, then the
+        # threshold level will be 0. In that case, just run the minimax algorithm.
         threshold_level = game_tracking_vars.instance_random_move_thresholds[difficulty]
         recursion_level = 5
         if threshold_level <= 0:
+            # player_num and other_player_num are set based on whether it's time for X to move
+            # or O to move, and whether the computer goes first or second. So if you choose to
+            # be X, then you are player number 1, and the computer is player number 2. If the
+            # computer goes first, then game_tracking_vars.instance_turn_of_x_char_or_not = False
+            # and player_num = 2, meaning you're X and it's O's turn to put a piece on the board. 
+            # If you were O instead of X, player_num = 1. After that, other_player_num gets the
+            # opposite player number. The idea of this is that you want to set player_num and
+            # other_player_num such that the minimax function is being called against you. See
+            # the commit message on 0a0589ad45790fffc641d52f7f28fb7255bd4141 for additional context. 
             if comp_goes_first:
                 player_num = 1 if game_tracking_vars.instance_turn_of_x_char_or_not else 2
                 other_player_num = 2 if game_tracking_vars.instance_turn_of_x_char_or_not else 1
@@ -60,7 +89,6 @@ class SinglePlayer:
                 )
                 return coordinate[0]
 
-    # This is the full single player version against the computer
     def run_single_player(self,name,difficulty, difficulty_level, artificial_intelligence_object,\
                           input_object,print_object,game_tracking_variable_object):
         """
@@ -71,12 +99,18 @@ class SinglePlayer:
         in_put = input("Enter '1' to go first, enter '2' for the computer to go first: ")
         while (not((in_put.casefold()) in ['1','2'])):
             in_put = input("Invalid input. Enter '1' to go first, enter '2' for the computer to go first: ")
+        # comp_goes_first basically keeps track of whether we are making a move as the computer or the user.
         comp_goes_first = in_put.casefold() == '2'
+        # Determines whether it's the turn of the X player to move or not. In the event that you start, it
+        # determines if you are X or O. If the computer goes first, then negate the boolean value since the
+        # other character (X or O) goes first. Basically just keep track if you're putting an X or an O on
+        # the board.
         game_tracking_variable_object.instance_turn_of_x_char_or_not = input_object.who_starts_first(False)
         if comp_goes_first:
             game_tracking_variable_object.instance_turn_of_x_char_or_not = not(
                 game_tracking_variable_object.instance_turn_of_x_char_or_not
             )
+        # So long as nobody has won the game, keep running the loop representing the game
         nobody_has_won = artificial_intelligence_object.no_wins(game_tracking_variable_object.instance_current_status_of_board_pieces)
         nobody_wins = None
         coordinates = None
@@ -120,8 +154,6 @@ class SinglePlayer:
                 game_tracking_variable_object.instance_turn_of_x_char_or_not
             )
 
-# This is the multiplayer version of Tic Tac Toe. I was thinking about putting
-# this in its own module, but for roughly 60 lines it doesn't seem worth it.
 class Multiplayer:
     """
         This class is responsible for the multiplayer version of Tic Tac Toe
