@@ -5,4 +5,4 @@
 *.db
 *.vscode/
 # Ignore changes in the virtual environment (i.e. new libraries installed, etc.)
-**/project_env/**
+project_env/**
