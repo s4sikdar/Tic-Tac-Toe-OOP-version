@@ -24,55 +24,40 @@ class SinglePlayer:
 
         return [y_coord, x_coord]
 
-    def find_move(self, game_tracking_vars, difficulty, difficulty_level, ai_object):
+    def find_move(self, game_tracking_vars, difficulty, difficulty_level, ai_object, comp_goes_first):
         threshold_level = game_tracking_vars.instance_random_move_thresholds[difficulty]
+        recursion_level = 5
         if threshold_level <= 0:
-            alpha = sys.maxsize * -1
-            beta = sys.maxsize
-            if game_tracking_vars.instance_turn_of_x_char_or_not:
-                coordinate = ai_object.minimax(
-                    7,\
-                    game_tracking_vars.instance_current_status_of_board_pieces,\
-                    True,2,1,[0,0],\
-                    game_tracking_vars.instance_array_of_available_spots,
-                    alpha=alpha,
-                    beta=beta
-                )
+            if comp_goes_first:
+                player_num = 1 if game_tracking_vars.instance_turn_of_x_char_or_not else 2
+                other_player_num = 2 if game_tracking_vars.instance_turn_of_x_char_or_not else 1
             else:
-                coordinate = ai_object.minimax(
-                    7,\
-                    game_tracking_vars.instance_current_status_of_board_pieces,\
-                    True,1,2,[0,0],\
-                    game_tracking_vars.instance_array_of_available_spots,
-                    alpha=alpha,
-                    beta=beta
-                )
+                player_num = 2 if game_tracking_vars.instance_turn_of_x_char_or_not else 1
+                other_player_num = 1 if game_tracking_vars.instance_turn_of_x_char_or_not else 2
+            coordinate = ai_object.minimax(
+                recursion_level,\
+                game_tracking_vars.instance_current_status_of_board_pieces,\
+                True, player_num, other_player_num, [0, 0],\
+                game_tracking_vars.instance_array_of_available_spots
+            )
             return coordinate[0]
         else:
             number = random.randint(1, 10)
             if number <= threshold_level:
                 return self.find_random_move(game_tracking_vars)
             else:
-                alpha = sys.maxsize * -1
-                beta = sys.maxsize
-                if game_tracking_vars.instance_turn_of_x_char_or_not:
-                    coordinate = ai_object.minimax(
-                        7,\
-                        game_tracking_vars.instance_current_status_of_board_pieces,\
-                        True,2,1,[0,0],\
-                        game_tracking_vars.instance_array_of_available_spots,
-                        alpha=alpha,
-                        beta=beta
-                    )
+                if comp_goes_first:
+                    player_num = 1 if game_tracking_vars.instance_turn_of_x_char_or_not else 2
+                    other_player_num = 2 if game_tracking_vars.instance_turn_of_x_char_or_not else 1
                 else:
-                    coordinate = ai_object.minimax(
-                        7,\
-                        game_tracking_vars.instance_current_status_of_board_pieces,\
-                        True,1,2,[0,0],\
-                        game_tracking_vars.instance_array_of_available_spots,
-                        alpha=alpha,
-                        beta=beta
-                    )
+                    player_num = 2 if game_tracking_vars.instance_turn_of_x_char_or_not else 1
+                    other_player_num = 1 if game_tracking_vars.instance_turn_of_x_char_or_not else 2
+                coordinate = ai_object.minimax(
+                    recursion_level,\
+                    game_tracking_vars.instance_current_status_of_board_pieces,\
+                    True, player_num, other_player_num, [0, 0],\
+                    game_tracking_vars.instance_array_of_available_spots
+                )
                 return coordinate[0]
 
     # This is the full single player version against the computer
@@ -99,7 +84,7 @@ class SinglePlayer:
             if comp_goes_first:
                 coordinates = self.find_move(
                     game_tracking_variable_object, difficulty,
-                    difficulty_level, artificial_intelligence_object
+                    difficulty_level, artificial_intelligence_object, comp_goes_first
                 )
                 print_object.change_game_state(game_tracking_variable_object,\
                                               [game_tracking_variable_object.instance_number_legend.get(int(coordinates[0])),\
