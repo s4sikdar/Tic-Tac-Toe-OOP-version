@@ -47,6 +47,8 @@ class SinglePlayer:
         # threshold level will be 0. In that case, just run the minimax algorithm.
         threshold_level = game_tracking_vars.instance_random_move_thresholds[difficulty]
         recursion_level = 5
+        alpha = -1 * sys.maxsize
+        beta = sys.maxsize
         if threshold_level <= 0:
             # player_num and other_player_num are set based on whether it's time for X to move
             # or O to move, and whether the computer goes first or second. So if you choose to
@@ -67,7 +69,9 @@ class SinglePlayer:
                 recursion_level,\
                 game_tracking_vars.instance_current_status_of_board_pieces,\
                 True, player_num, other_player_num, [0, 0],\
-                game_tracking_vars.instance_array_of_available_spots
+                game_tracking_vars.instance_array_of_available_spots,
+                alpha=alpha,
+                beta=beta
             )
             return coordinate[0]
         else:
@@ -85,7 +89,9 @@ class SinglePlayer:
                     recursion_level,\
                     game_tracking_vars.instance_current_status_of_board_pieces,\
                     True, player_num, other_player_num, [0, 0],\
-                    game_tracking_vars.instance_array_of_available_spots
+                    game_tracking_vars.instance_array_of_available_spots,
+                    alpha=alpha,
+                    beta=beta
                 )
                 return coordinate[0]
 

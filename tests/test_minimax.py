@@ -161,5 +161,20 @@ class TestAI(unittest.TestCase):
         self.assertEqual(regular_minimax_eval, [[0, 0], 2])
         self.assertEqual(regular_minimax_eval, alpha_beta_eval)
 
+    @patch('artificial_intelligence.TheAIProgram.static_evaluation')
+    def test_alpha_beta_vs_minimax_empty_board(self, static_eval_mock):
+        board = copy.deepcopy(self.instance_game_vars.instance_current_status_of_board_pieces)
+        available_spots  = copy.deepcopy(self.instance_game_vars.instance_array_of_available_spots)
+        alpha_beta = copy.deepcopy(self.alpha_beta)
+        static_eval_mock.side_effect = self.static_evaluation
+        board[0][0] = 1
+        available_spots[0][0] = False
+        regular_eval = self.instance_ai_prog.minimax(3, board, True, 2, 1, [0, 1], available_spots)
+        self.assertEqual(static_eval_mock.call_count, 336)
+        static_eval_mock.reset_mock()
+        alpha_beta_eval = self.instance_ai_prog.minimax(3, board, True, 2, 1, [0, 1], available_spots, **alpha_beta)
+        self.assertLess(static_eval_mock.call_count, 336)
+        self.assertEqual(regular_eval, alpha_beta_eval)
+
 if __name__ == '__main__':
     unittest.main()
